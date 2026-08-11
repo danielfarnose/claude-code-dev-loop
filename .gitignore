@@ -1,0 +1,8 @@
+# Local credentials — never committed. See .env.example for the keys and where they come from.
+.env
+
+# Node. scripts/ are zero-dependency, but keep local installs out.
+node_modules/
+
+# macOS
+.DS_Store

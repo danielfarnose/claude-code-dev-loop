@@ -1,0 +1,17 @@
+{
+  "name": "squad",
+  "displayName": "squad",
+  "description": "A multi-agent development loop for Claude Code: plan, implement, verify and merge with five specialized subagents, serial worktrees and a recoverable board.",
+  "version": "1.0.0",
+  "author": { "name": "danielfarnose" },
+  "repository": "https://github.com/danielfarnose/claude-code-dev-loop",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "multi-agent",
+    "workflow",
+    "code-review",
+    "tdd",
+    "worktree"
+  ]
+}

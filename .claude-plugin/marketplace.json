@@ -1,0 +1,13 @@
+{
+  "name": "squad",
+  "owner": { "name": "danielfarnose", "url": "https://github.com/danielfarnose" },
+  "description": "A multi-agent development loop for Claude Code.",
+  "plugins": [
+    {
+      "name": "squad",
+      "source": "./",
+      "description": "Five specialized subagents running a plan → implement → verify → merge loop, with per-project knowledge in .claude/squad.md.",
+      "license": "MIT"
+    }
+  ]
+}
