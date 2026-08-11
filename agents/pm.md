@@ -41,6 +41,23 @@ Fixed format, max ~1 page:
 - **Out of scope**: what it does NOT include (anti scope-creep).
 No technical decisions (stack, files, functions) — that belongs to the @architect.
 
+## Design brief — when the task touches UI or the project is new
+Trigger: the task mentions interface/UI/UX/screen/visual, **or** it's a new project (no
+`DESIGN.md` yet at the path `squad.md §Required reading`/`§PM` declares, or no `squad.md` at all).
+Don't guess the look and feel — ask. Before writing the spec, add a section **Open design
+questions** (max 4-5, only the ones that actually change the outcome):
+- References: an existing product/site whose look they like (or explicitly dislike).
+- Tone: professional/playful/minimal/dense — in one word if possible.
+- Who looks at this screen and in what context (mobile-first? dashboard for power users?).
+- Is there a brand/palette/typography already fixed, or is this the first screen defining it?
+- Any pattern to avoid (a past redesign they didn't like, a competitor look to not copy).
+
+Return the spec with that section **unanswered** — the lead relays it to the human before handing
+off to @architect. Once answered, fold the answers into `What`/`Acceptance criteria` and, if the
+project has none yet, note "recommend `UI UX Pro Max` to seed `DESIGN.md`" — you do not generate
+the visual system yourself. Skip this section entirely on backend-only tasks or when the project
+already has a `DESIGN.md` that already answers these.
+
 ## Roadmap
 Three sections: **Done** (last week, with date) · **In progress** · **Next** (top 3 of the backlog).
 Update after every merge the lead reports to you. Compact: one line per item.

@@ -116,13 +116,14 @@ one line of error and you continue.
    | 3 | `R4_PM_ARCHITECT` | ambiguous **AND** structural | pm → architect → developer → qa |
    | 4 | `R3_ARCHITECTURE` | new module · changes a contract or the data model · external integration · new dependency · background jobs · deploy/infra | architect → developer → qa |
    | 5 | `R2_PRODUCT_CLARIFICATION` | it isn't clear WHAT should happen; there are several business readings; the developer would have to invent behavior | pm → architect → developer → qa |
+   | 5b | `R2_DESIGN` | new screen/component or visual redesign **and** the project has no `DESIGN.md` answering the look and feel | pm (design brief) → **design checkpoint** → architect → developer → qa |
    | 6 | `R0_TRIVIAL` | copy · typo · doc · small style · mechanical change — **and** it doesn't touch a forbidden zone | developer (you run the gate) |
    | 7 | `R1_STANDARD` | fallback: clear requirement over a pattern that already exists | architect → developer → qa |
 
    Print exactly this and save it in the BOARD's `Route:`:
 
    ```
-   Signals: new_project:no · risk:no · ambiguous:no · architecture:yes · trivial:no
+   Signals: new_project:no · risk:no · ambiguous:no · architecture:yes · new_ui:no · trivial:no
    Route: R3_ARCHITECTURE · agents: architect → developer → qa · reason: new external integration
    ```
 
@@ -132,6 +133,12 @@ one line of error and you continue.
    - **`Route:` lives in the BOARD** → `resume` does not re-route.
    - **R2/R4/R5 start with @pm:** it writes the spec at the path from `squad.md §PM` and the @architect
      receives **the spec**, not the raw task. If `§PM` says "no pm" → drop to R1/R3 and say so.
+   - **Design checkpoint (`R2_DESIGN`, and `R5` when it involves UI).** The @pm's spec comes back with
+     an **Open design questions** section. Ask the human those questions **before** the @architect —
+     using AskUserQuestion, one call, references/tone/audience/brand as separate questions with
+     concrete options, never a wall of prose. Their answers go into the spec (@pm edits it) and only
+     then does the @architect see it. This checkpoint is what stops the squad from inventing a
+     generic SaaS look; skipping it because "the task seemed clear" is the failure mode it exists for.
 1. @architect (task or pm spec) → 1..N ordered tickets (big task = split with dependencies).
    Register them all in the BOARD as `ready`, in order. Phase `implementing`.
    **R0 skips this step**: you write the micro-ticket yourself, in the same tickets path.
