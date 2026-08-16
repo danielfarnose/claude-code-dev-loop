@@ -1,8 +1,9 @@
 # Squad — <PROJECT>
 
-Knowledge contract for the global dev agents (`~/.claude/agents/`: @pm · @architect ·
-@developer · @qa). The PROCESS lives in the agents (repo `squad`); what is specific to THIS project
-lives here. Fill in ALL the sections — the agents STOP if what they need is missing.
+Shared knowledge contract for squad roles in Claude Code and Codex (@pm · @architect · @developer ·
+@qa). The PROCESS lives in the `squad` plugin; what is specific to THIS project lives here. The
+`.claude/` path is retained so both hosts use one versioned contract. Fill in ALL sections — roles
+STOP if what they need is missing.
 
 ## Product and end user
 <!-- What the product is and WHO uses it. The architect and the pm prioritize/design with this
@@ -70,7 +71,7 @@ To disable that default in this project, say so explicitly here. -->
 
 ## Git / close
 <!-- Branch policy, what gets committed/pushed on close, what never gets uploaded.
-NOTE: /squad:run runs every run in an isolated worktree (branch `squad/<run-id>`) and merges it with
+NOTE: `/squad:run` (Claude) and `$squad:codex-run` (Codex) run every task in an isolated worktree (branch `squad/<run-id>`) and merge it with
 `--ff-only` into the branch that was active at start. It's serial: one run at a time. So "straight to
 main" is still true — the worktree is a loop detail, not a branch policy of the
 project. Declare the real base branch here (`main`, `master`) if it isn't obvious. -->

@@ -12,7 +12,7 @@ $ARGUMENTS
 2. Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/trello-sync.mjs <BOARD.md path> <board-id>` (pass `--dry-run` if
    requested) and report the script's summary (created/updated/archived).
 3. If it fails on credentials: tell the human to copy the plugin's `.env.example` to
-   `~/.claude/squad.env` and fill it in THEMSELVES (API key + Token from https://trello.com/power-ups/admin;
+   `~/.claude/squad.env` (Claude) or `~/.codex/squad.env` (Codex) and fill it in THEMSELVES (API key + Token from https://trello.com/power-ups/admin;
    the "Secret" on that page is NOT used — it's for OAuth). The `.env` is gitignored. NEVER ask
    them for the key/token in chat and never write them into any file yourself.
 

@@ -1,0 +1,41 @@
+{
+  "name": "squad",
+  "version": "1.1.0",
+  "description": "A dual-host development loop for Codex and Claude: plan, implement, independently verify, learn, and merge.",
+  "author": {
+    "name": "danielfarnose",
+    "url": "https://github.com/danielfarnose"
+  },
+  "homepage": "https://github.com/danielfarnose/claude-code-dev-loop#readme",
+  "repository": "https://github.com/danielfarnose/claude-code-dev-loop",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "multi-agent",
+    "workflow",
+    "code-review",
+    "tdd",
+    "worktree",
+    "codex",
+    "claude"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "squad",
+    "shortDescription": "Multi-agent dev loop for Codex and Claude",
+    "longDescription": "A recoverable development loop with routing, isolated worktrees, separate architect, developer, QA and security roles, project-specific knowledge, and verified fast-forward merges. Runs natively in both Codex and Claude Code.",
+    "developerName": "danielfarnose",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/danielfarnose/claude-code-dev-loop",
+    "defaultPrompt": [
+      "Use $squad:codex-run on this task.",
+      "Use $squad:codex-run to resume the active run.",
+      "Use $squad:codex-patrol to find bugs."
+    ],
+    "brandColor": "#D97757"
+  }
+}

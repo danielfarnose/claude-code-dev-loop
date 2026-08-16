@@ -1,0 +1,4 @@
+interface:
+  display_name: "Record Squad Learnings"
+  short_description: "Save durable lessons from an approved squad run"
+  default_prompt: "Use $recording-learnings to capture the non-obvious lessons from this run."

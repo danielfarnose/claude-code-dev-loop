@@ -1,0 +1,6 @@
+interface:
+  display_name: "Squad Board"
+  short_description: "Sync BOARD.md to the configured Trello board"
+  default_prompt: "Use $codex-board to sync this project's squad board."
+policy:
+  allow_implicit_invocation: true

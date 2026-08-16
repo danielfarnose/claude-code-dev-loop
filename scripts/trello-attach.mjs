@@ -4,18 +4,22 @@
 // runs it when closing a verdict, with the paths @qa reported.
 // Usage: node trello-attach.mjs <trello-board-id> <ticket-slug> <file...> [--dry-run]
 // Idempotent: if the card already has an attachment with that name it is skipped (re-running is free).
-// Credentials: TRELLO_KEY + TRELLO_TOKEN in ~/.claude/squad.env, same as trello-sync.mjs.
+// Credentials: TRELLO_KEY + TRELLO_TOKEN in SQUAD_ENV_FILE or ~/.claude/squad.env, same as
+// trello-sync.mjs. The Codex adapter passes ~/.codex/squad.env explicitly.
 import { readFileSync, openAsBlob } from "node:fs";
 import { homedir } from "node:os";
 import { basename } from "node:path";
 
-for (const src of [`${homedir()}/.claude/squad.env`, new URL("../.env", import.meta.url)]) {
+for (const src of [
+  process.env.SQUAD_ENV_FILE,
+  `${homedir()}/.claude/squad.env`,
+  new URL("../.env", import.meta.url),
+].filter(Boolean)) {
   try {
     for (const line of readFileSync(src, "utf8").split("\n")) {
       const m = line.match(/^\s*(TRELLO_[A-Z_]+)\s*=\s*(.*?)\s*$/);
       if (m && m[2] && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
     }
-    break;
   } catch {}
 }
 

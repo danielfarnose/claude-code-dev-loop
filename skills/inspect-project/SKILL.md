@@ -1,7 +1,6 @@
 ---
 name: inspect-project
-description: Inspects a repository and writes or refreshes its .claude/squad.md — the contract the squad's global agents read. Use it when onboarding a new project into the loop (route R5), when the squad.md has drifted from the real code, or when an agent STOPS because a section is missing. Read-only over the code: it never modifies it.
-argument-hint: "[project path] [--refresh]"
+description: Inspects a repository and writes or refreshes its .claude/squad.md — the shared project contract read by squad roles in Claude Code and Codex. Use it when onboarding a project into route R5, when squad.md has drifted from the code, or when a role stops because a section is missing. It reads product code without modifying it; its only write is the contract.
 ---
 
 # inspect-project
@@ -9,6 +8,9 @@ argument-hint: "[project path] [--refresh]"
 Onboards a repo into the squad: reads the real code and **writes `.claude/squad.md`**. It's the
 alternative to filling in the template by hand — which is how drift happens (a `verify.sh` that
 covers 5 subprojects and a `squad.md` that announces 3).
+
+The `.claude/` name is retained as a compatibility path: Claude Code and Codex intentionally read
+the same versioned contract. Never create a duplicate `.codex/squad.md`.
 
 Read-only over the code. The **only** file you write is `.claude/squad.md`.
 Caveman: terse, technically exact, no filler.
@@ -47,9 +49,13 @@ confirmation** before writing it.
    branches or direct commits?). Don't propose a policy the repo doesn't use.
 8. **Run read-only commands only** (`git log`, `ls`, `cat` of manifests). Never install, migrate,
    build or run tests: it can have side effects and it's not your job.
-9. **Write `.claude/squad.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/squad.md`, with ALL its
-   sections. The ones you couldn't confirm: `unknown — <what's left to find out>`.
-10. **Report**: what you detected with evidence (the file that proves it), what stayed `unknown`, and
+9. **Resolve the template:** in Claude Code use `${CLAUDE_PLUGIN_ROOT}/templates/squad.md`; in
+   Codex resolve `SKILL_DIR` as this file's directory and the plugin root as the absolute path
+   `SKILL_DIR/../..`, then use
+   `<plugin-root>/templates/squad.md`.
+10. **Write `.claude/squad.md`** from that template, with ALL its sections. The ones you couldn't
+    confirm: `unknown — <what's left to find out>`.
+11. **Report**: what you detected with evidence (the file that proves it), what stayed `unknown`, and
     the proposed gate **as a question**.
 
 ## `--refresh` mode

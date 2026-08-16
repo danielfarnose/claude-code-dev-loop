@@ -1,6 +1,6 @@
 ---
 name: recording-learnings
-description: Captures what the session learned (gotchas, anti-patterns, non-obvious decisions, causes of the qa's REJECTED verdicts) in the current project's versioned knowledge base. Use it at the close of the squad loop —after APPROVED, before reporting— and after any non-obvious debug. Also by hand with /learn. The path is declared by .claude/squad.md §Knowledge (default .claude/knowledge/).
+description: Captures what Claude Code or Codex learned during a squad run — gotchas, anti-patterns, non-obvious decisions, and causes of QA rejections — in the project's versioned knowledge base. Use after APPROVED before reporting, after a non-obvious debug, or when explicitly asked to record squad learnings. The path comes from .claude/squad.md §Knowledge.
 ---
 
 # recording-learnings
@@ -8,6 +8,9 @@ description: Captures what the session learned (gotchas, anti-patterns, non-obvi
 Workflow memory. Write down what does NOT follow on its own, so the next session doesn't re-learn it.
 It's the "write" half of self-learning — the "read" half is done by @architect in its Step 0.
 Caveman: terse, technically exact, no filler.
+
+`.claude/squad.md` and the default `.claude/knowledge/` are shared compatibility paths. Both Claude
+Code and Codex use them; do not fork knowledge by host.
 
 ## Where
 
@@ -59,7 +62,8 @@ If none of this came up: do NOT invent. Report `learnings: 0` and move on.
 
 ## Size rule (mandatory)
 
-- `INDEX.md` between **300 and 500 lines** (hard cap 500).
+- `INDEX.md` has a **hard cap of 500 lines**. A new minimal index is valid; grow it only with real
+  learnings.
 - Near the cap, or a topic file >~400 lines: split into linked files and leave only a
   summary line + link in `INDEX.md`.
 - Verify when done: `wc -l <path>/INDEX.md` ≤ 500.

@@ -16,7 +16,8 @@
 #                (`sk-or-v1-`) and are valid for administration but return 401 on inference:
 #                without this check the symptom was a silent fallback mid-run (2026-08-08).
 #
-# Config in ~/.claude/squad.env (shell variables win):
+# This optimization is Claude-only. Codex uses native Codex subagents and does not call this script.
+# Config in $SQUAD_ENV_FILE or ~/.claude/squad.env (shell variables win):
 #   OPENROUTER_API_KEY  — required. Without it, exit 78: the lead uses the fallback and carries on.
 #   OPENROUTER_MODEL    — optional, defaults to openai/gpt-5.6-sol.
 #
@@ -36,13 +37,12 @@ if [[ "$FLAG" != "--check" ]]; then
 fi
 [[ -d "$WORKDIR" ]] || { echo "no such workdir: $WORKDIR" >&2; exit 64; }
 
-# Credentials without deps (OPENROUTER_* only; shell variables always win).
-# `~/.claude/squad.env` first: installed as a plugin, this repo lives in a cache that is replaced on
-# every update, so a .env kept in here would be lost. The repo's .env stays as a fallback for the
-# clone-and-run-by-hand case.
-ENV_FILE="$HOME/.claude/squad.env"
-[[ -f "$ENV_FILE" ]] || ENV_FILE="$ROOT_DIR/.env"
-if [[ -f "$ENV_FILE" ]]; then
+# Credentials without deps (OPENROUTER_* only; shell variables always win). Host-specific config
+# files live outside the replaceable plugin cache. SQUAD_ENV_FILE is the neutral explicit override;
+# the repo's .env remains the clone-and-run-by-hand fallback.
+ENV_FILES=("${SQUAD_ENV_FILE:-}" "$HOME/.claude/squad.env" "$ROOT_DIR/.env")
+for ENV_FILE in "${ENV_FILES[@]}"; do
+  [[ -n "$ENV_FILE" && -f "$ENV_FILE" ]] || continue
   # `|| [[ -n "$line" ]]`: without it the LAST line is lost when the file does not end in a
   # newline — `read` leaves it in $line but returns 1, so the while exits before the body. Happened
   # with the real key (2026-08-08): a hand-edited .env had no trailing newline and the script
@@ -53,9 +53,9 @@ if [[ -f "$ENV_FILE" ]]; then
       [[ -z "${!k:-}" ]] && export "$k=$v"
     fi
   done < "$ENV_FILE"
-fi
+done
 if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
-  echo "OPENROUTER_API_KEY is not set (neither in the shell nor in ~/.claude/squad.env) — use the fallback (Agent tool)" >&2
+  echo "OPENROUTER_API_KEY is not set (shell, SQUAD_ENV_FILE, or ~/.claude/squad.env) — use the Claude Agent fallback" >&2
   exit 78
 fi
 MODEL="${OPENROUTER_MODEL:-openai/gpt-5.6-sol}"

@@ -4,23 +4,25 @@
 // next sync overwrites it) — so there is never a second source of truth, and never drift.
 // Usage: node trello-sync.mjs <BOARD.md> <trello-board-id> [--dry-run]
 //        --dry-run: prints what was parsed and the actions, without calling the API (a free check).
-// Credentials: TRELLO_KEY + TRELLO_TOKEN in ~/.claude/squad.env (copy .env.example) or exported in
-// the shell (the shell wins). CAREFUL: it is API key + TOKEN — the "Secret" on the Trello page is
-// NOT used (that one is for OAuth).
+// Credentials: TRELLO_KEY + TRELLO_TOKEN in SQUAD_ENV_FILE, ~/.claude/squad.env, or the shell
+// (the shell wins). The Codex adapter passes ~/.codex/squad.env explicitly. CAREFUL: it is API key + TOKEN — the
+// "Secret" on the Trello page is NOT used (that one is for OAuth).
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 
-// Credentials without deps: TRELLO_* keys only, never overriding the shell. `~/.claude/squad.env`
-// first because, installed as a plugin, this repo lives in a cache that is replaced on every
-// update; the repo's .env stays as a fallback for the clone-and-run-by-hand case.
-for (const src of [`${homedir()}/.claude/squad.env`, new URL("../.env", import.meta.url)]) {
+// Credentials without deps: TRELLO_* keys only, never overriding the shell. Host-specific files
+// live outside the replaceable plugin cache; the repo's .env is the clone-and-run-by-hand fallback.
+for (const src of [
+  process.env.SQUAD_ENV_FILE,
+  `${homedir()}/.claude/squad.env`,
+  new URL("../.env", import.meta.url),
+].filter(Boolean)) {
   try {
     for (const line of readFileSync(src, "utf8").split("\n")) {
       const m = line.match(/^\s*(TRELLO_[A-Z_]+)\s*=\s*(.*?)\s*$/);
       if (m && m[2] && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
     }
-    break;
-  } catch {} // missing → try the next one; with neither, the shell's values apply
+  } catch {} // missing → try the next one; with none, the shell's values apply
 }
 
 const LISTS = { ready: "Ready", in_progress: "In progress", qa: "QA", done: "Done", blocked: "Blocked" };
@@ -230,7 +232,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
   if (!dry && (!process.env.TRELLO_KEY || !process.env.TRELLO_TOKEN)) {
     console.error(
-      "missing TRELLO_KEY / TRELLO_TOKEN — copy .env.example to ~/.claude/squad.env and fill it in " +
+      "missing TRELLO_KEY / TRELLO_TOKEN — copy .env.example to ~/.codex/squad.env or ~/.claude/squad.env and fill it in " +
         "(API key + Token from https://trello.com/power-ups/admin; the 'Secret' is NOT used)"
     );
     process.exit(2);
