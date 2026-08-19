@@ -1,0 +1,4 @@
+interface:
+  display_name: "Inspect Project"
+  short_description: "Create or refresh the shared squad contract"
+  default_prompt: "Use $inspect-project to onboard this repository into squad."

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Squad Run"
+  short_description: "Run the routed multi-agent development loop"
+  default_prompt: "Use $codex-run to implement this task through the squad loop."
+policy:
+  allow_implicit_invocation: true

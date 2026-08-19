@@ -1,0 +1,6 @@
+interface:
+  display_name: "Squad Security Audit"
+  short_description: "Audit project-specific high-risk security boundaries"
+  default_prompt: "Use $codex-security-audit to audit this project's declared threat model."
+policy:
+  allow_implicit_invocation: true

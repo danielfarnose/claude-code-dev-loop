@@ -1,0 +1,21 @@
+{
+  "name": "squad",
+  "interface": {
+    "displayName": "squad"
+  },
+  "plugins": [
+    {
+      "name": "squad",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/danielfarnose/claude-code-dev-loop.git",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

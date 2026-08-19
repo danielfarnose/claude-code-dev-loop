@@ -1,0 +1,6 @@
+interface:
+  display_name: "Squad Patrol"
+  short_description: "Find bugs and fix verified P1 findings"
+  default_prompt: "Use $codex-patrol to inspect this project for concrete bugs."
+policy:
+  allow_implicit_invocation: true
