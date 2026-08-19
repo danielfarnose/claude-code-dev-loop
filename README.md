@@ -442,6 +442,31 @@ shipping someone else's code under your license and pinning a copy that silently
 each agent states the underlying rule inline and follows it when the skill is absent, and reports
 that it did. Install them separately and the agents pick them up automatically.
 
+### Bring your own stack skills (Next, React, Python, iOS, …)
+
+squad is stack-agnostic: the agents learn your stack from `squad.md`, and you can hand them any
+skill your stack needs in two steps:
+
+1. **Install the skill** where your host discovers it — a marketplace plugin
+   (`/plugin install …` in Claude Code), or a plain skill folder in `~/.claude/skills/<name>/`
+   (global) or `<project>/.claude/skills/<name>/` (that repo only).
+2. **Declare it in the project's `.claude/squad.md`, section `§Skills by task type`** — that is
+   the wiring. `@developer` treats the skills flagged there as mandatory for matching tickets,
+   and on a clash they win over its own defaults.
+
+```markdown
+## §Skills by task type
+- Tickets touching React components or Next routes → skill `vercel-nextjs-best-practices`.
+- Python code → skill `python-modern-idioms`.
+- iOS / Swift tickets → skill `swift-ui-review`.
+- Everything else: none extra (the agents' own ponytail + TDD apply).
+```
+
+The skill names above are examples — declare whatever you actually installed. Agents treat
+`§Skills` entries as mandatory for matching tickets, so declare only skills that exist on the
+machine; the built-in defaults (ponytail, TDD, the design trio) are the ones that degrade
+gracefully when absent.
+
 ## Try the method on one real task
 
 Choose a repository with a meaningful test or verification command. Onboard it, give squad a task
