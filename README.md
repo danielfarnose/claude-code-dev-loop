@@ -86,6 +86,15 @@ squad prints the route it chose, creates the worktree and BOARD, then moves the 
 roles required by its risk and ambiguity. Use `resume` after an interruption and `status` for a
 read-only summary.
 
+### Recommended: build a knowledge graph of your project
+
+Install [graphify](https://github.com/Graphify-Labs/graphify) and run `/graphify .` once at the
+root of the project squad works on. It leaves a `graphify-out/` directory there; squad symlinks it
+into every run's worktree, and `@architect` and `@developer` query it for orientation
+(`graphify query "<question>"` — a deterministic graph traversal, no LLM call) instead of reading
+whole files, which saves real tokens on every run. Entirely optional: without the graph, agents
+fall back to the code-graph MCP or plain grep and nothing breaks.
+
 ## What this is — and what it is not
 
 squad is a controlled delivery loop, not a swarm of agents chatting to one another. One lead owns
