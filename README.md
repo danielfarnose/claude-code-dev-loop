@@ -13,6 +13,12 @@ QA agent decides whether it is ready to merge.
 
 > **The agent that writes the code never approves it.**
 
+![A real squad run: the lead updates the BOARD, asks for the review checkpoint, launches the developer — and the Trello mirror moves with it](github_readme_console_then_trello.gif)
+
+*A real run (session in Spanish): the lead registers the tickets, stops at the review checkpoint
+before touching code, then launches the developer — while the optional Trello mirror moves cards
+live.*
+
 It is a reusable plugin, not a project template. The workflow carries the process; each repository
 carries its own stack, quality bar and verification command in one versioned contract:
 `.claude/squad.md`. The path is intentionally shared by both hosts.
