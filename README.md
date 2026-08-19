@@ -65,8 +65,10 @@ codex plugin add squad@squad
 
 ### 2. Onboard a repository once
 
-Run `inspect-project`. It reads the repository and drafts `.claude/squad.md`. Review that file and
-confirm the verification command: this is the gate both developer and QA will trust.
+Ask for the `inspect-project` skill — or just launch your first task: a repository without
+`.claude/squad.md` routes to `R5_NEW_PROJECT`, which runs it for you and stops at a checkpoint.
+It reads the repository and drafts `.claude/squad.md`. Review that file and confirm the
+verification command: this is the gate both developer and QA will trust.
 
 ### 3. Give squad a real outcome
 
@@ -92,8 +94,8 @@ Install [graphify](https://github.com/Graphify-Labs/graphify) and run `/graphify
 root of the project squad works on. It leaves a `graphify-out/` directory there; squad symlinks it
 into every run's worktree, and `@architect` and `@developer` query it for orientation
 (`graphify query "<question>"` — a deterministic graph traversal, no LLM call) instead of reading
-whole files, which saves real tokens on every run. Entirely optional: without the graph, agents
-fall back to the code-graph MCP or plain grep and nothing breaks.
+whole files, which saves the tokens those reads would cost. Entirely optional: without the graph,
+agents fall back to the code-graph MCP or plain grep and nothing breaks.
 
 ## What this is — and what it is not
 
@@ -159,7 +161,8 @@ orchestrates; roles never call each other.
 0b. lead                        → ROUTING: decide WHICH agents run (R0..R6) and print it
     @pm (routes R2/R4/R5)       → product spec / backlog
 1.  @architect (task or spec)  → 1..N ordered tickets (big task = split with deps);
-                                  ambiguity = assume + record "Assumption:" (never blocks asking)
+                                  ambiguity = assume + record "Assumption:" in the ticket
+                                  (it never stops to ask — the human reviews assumptions)
 2.  @developer (ticket path)    → implements + runs the squad.md gate + commits ONLY its ticket
 3.  @qa (developer's commit)    → reviews that commit + runs the SAME gate
                                   → APPROVED / REJECTED: [reasons]
