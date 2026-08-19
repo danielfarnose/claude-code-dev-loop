@@ -333,10 +333,32 @@ codex plugin remove squad@squad
 codex plugin add squad@squad
 ```
 
-**Optional credentials.** Everything runs without them: Trello sync is skipped and Claude's
-developer/QA roles use their native fallback. Copy `.env.example` to `~/.claude/squad.env` for
-Claude Code or `~/.codex/squad.env` for Codex. You can instead point both hosts at one file with
-`SQUAD_ENV_FILE`. Credentials live outside the replaceable plugin cache; shell variables win.
+### Optional credentials
+
+Everything runs without them: Trello sync is skipped and Claude's developer/QA roles use their
+native fallback. Copy `.env.example` to `~/.claude/squad.env` for Claude Code or
+`~/.codex/squad.env` for Codex. You can instead point both hosts at one file with
+`SQUAD_ENV_FILE`. The file lives **outside** the plugin cache on purpose (the cache is replaced on
+every update) and outside your project's `.env` (the scripts don't read that); shell variables win
+over the file.
+
+```bash
+# ~/.claude/squad.env
+TRELLO_KEY=...          # Trello board mirror (optional)
+TRELLO_TOKEN=...
+OPENROUTER_API_KEY=...  # Claude-only developer/QA engine (optional)
+# OPENROUTER_MODEL=...  # defaults to openai/gpt-5.6-sol
+```
+
+- **Trello** — from <https://trello.com/power-ups/admin>: create a power-up, open its *API key*
+  tab. `TRELLO_KEY` is the API Key; `TRELLO_TOKEN` comes from the *Token* link next to it (you
+  authorize by hand and it returns a long string). **The "Secret" on that page does not go
+  anywhere** — it is for OAuth and these scripts never use it. Then point each project at its
+  board with a `Trello: board <id>` line in that project's `squad.md`; without that line the sync
+  is skipped.
+- **OpenRouter** — a key from <https://openrouter.ai/settings/keys>, with credit loaded (the free
+  tier cannot afford an agent turn). Without it, or without credit, the lead detects it in one
+  `--check` and Claude's native Agent fallback runs instead — no iteration lost.
 
 Tickets, BOARD and project knowledge always live in the project repository. The plugin never moves
 them into its own installation directory.
