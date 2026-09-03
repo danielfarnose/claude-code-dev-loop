@@ -3,6 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 ![Claude Code + Codex](https://img.shields.io/badge/hosts-Claude%20Code%20%2B%20Codex-d97757)
 ![Runtime deps: zero](https://img.shields.io/badge/runtime%20deps-zero-brightgreen)
+![GitHub stars](https://img.shields.io/github/stars/danielfarnose/claude-code-dev-loop?style=social)
 
 Stop asking one coding agent to understand the product, design the change, write the code and
 approve its own work.
@@ -35,6 +36,8 @@ squad breaks that feedback loop:
 - **One source of truth.** Developer and QA run the exact same project-defined verification gate.
 - **Right-sized process.** A typo gets one agent; an auth or migration change gets planning,
   approval checkpoints, independent QA and a security pass.
+- **Intent before code.** On an ambiguous task the PM agent interviews you — one decision at a
+  time, with a recommendation — and you approve the intent before anything is planned.
 - **Recoverable execution.** Every transition is written to `BOARD.md`, so an interrupted run can
   resume instead of starting over.
 - **Isolated work.** Each run happens in its own Git worktree and reaches the base branch only
@@ -44,6 +47,18 @@ squad breaks that feedback loop:
 It is designed for developers and teams already using coding agents on real repositories, where
 “the code looks plausible” is not a sufficient definition of done. For a throwaway prototype, the
 full loop may be unnecessary — routing deliberately keeps trivial work cheap.
+
+### Designed from measured runs
+
+Most of the process exists because a real run was measured and something was off:
+
+| What the run showed | What squad does about it |
+|---|---|
+| Resuming a finished agent for a two-string fix cost **228k tokens**; a fresh developer, **115k** | On a rejection the lead spawns a *new* developer with the ticket, the diff and the reasons — it never resumes |
+| One developer opened 12 screenshots to self-check: ~30k permanent tokens, **60% of its spend** | Evidence is generated and reported by path; QA looks at one frame per variant, once |
+| The full gate ran **19 times** in a run where 8 were enough | The full gate runs once at closing; iteration uses the touched test only |
+| A chain of M dependent tickets paid **2M gate runs** and M evidence captures | Deferred QA on chains: M+1 gate runs, one capture at the close |
+| 4 of 5 agents paid the code-graph listing toll and went back to grep — **5 graph calls out of 497** | `squad.md` names the indexed project, so agents enter the graph directly |
 
 ## Quick start
 
@@ -258,6 +273,18 @@ acceptance criteria as `AC-NN Given / When / Then`; the `@architect` cites those
 tickets, and the `@qa` reports its verdict by them: `AC-03 FAIL: expected … actual …`. The
 `@developer` never invents product behavior — a choice the ticket did not cover is written down
 as `Assumption:` and surfaced with the verdict, never buried in the code.
+
+What one of those decisions looks like when it reaches you:
+
+```text
+Decision 1/3 — What should happen when publication fails?
+Why it matters: without this decision, a failed post can disappear silently.
+  ● Mark it FAILED, notify the user, allow a manual retry   (recommended)
+  ○ Keep retrying in the background, indefinitely
+  ○ Drop it and write a log line
+```
+
+You pick; the answer lands in the spec as a `Decision`, and the architect never re-opens it.
 
 Intent, specification and plan are kept apart in *time*, not in files: one spec, one human gate
 before any criterion exists, one more before any code does. Routes `R0`, `R1` and `R3` skip all
