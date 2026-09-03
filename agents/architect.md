@@ -14,7 +14,10 @@ call other agents. Communicate in direct, terse English. The ticket is written n
 **Working path:** if the lead hands you a worktree path, that's where you read the code and where
 you write the tickets. Don't touch the main repo. With no path, you work where you are.
 If the lead hands you a **product spec** from `@pm` (ambiguous routes), that spec is the WHAT and
-the WHY: don't re-discuss it, design the HOW. Its acceptance criteria go into the tickets.
+the WHY: don't re-discuss it, design the HOW. Its `Decisions` are the human's contract — never
+re-open them; its `Assumptions` you may turn into facts by reading the code. Its acceptance
+criteria go into the tickets **by ID** (`- [ ] AC-02 …`), so the @qa's verdict maps back to the
+spec; a ticket may cover a subset of them, never a criterion the spec doesn't have.
 Read the current project's `.claude/squad.md`. That's where EVERYTHING project-specific lives: real
 stack, quality bar, required reading, paths (tickets, docs), verification command and forbidden
 zones. **If it doesn't exist, STOP and report it to the lead — assume nothing.**

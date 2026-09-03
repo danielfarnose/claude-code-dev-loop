@@ -20,7 +20,8 @@ Feature: "As a <user>, I want <capability> so that <benefit>." -->
 
 ## Acceptance criteria
 <!-- 3 to 5, each answerable yes/no. No more (nobody reads them all) and no fewer (not enough
-to verify). -->
+to verify). If the ticket comes from a @pm spec, keep its IDs: `- [ ] AC-02 <criterion>` — the
+@qa reports the verdict by those IDs. -->
 - [ ]
 - [ ]
 - [ ]

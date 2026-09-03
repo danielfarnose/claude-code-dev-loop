@@ -70,6 +70,12 @@ graph is a snapshot of the main repo: confirm in the real code before citing a l
 - **Minimal and safe** change: only what the ticket says. **Do not touch unrelated code or
   `squad.md`'s forbidden zones.** Practical TypeScript, no gymnastics. Honest strings/copy: they say
   what the code actually does.
+- **Don't invent product behavior.** If you must decide something the ticket doesn't cover and the
+  user can observe (a state, a limit, what a screen shows, what happens on failure), take the
+  smallest reading the ticket's `Problem` implies and write it as `Assumption: <what and why>` — in
+  your output AND under the ticket's `Technical notes` — never silently. The lead surfaces it to the
+  human; the @qa checks the code matches it. Naming, structure and other choices nobody can observe
+  need no note.
 - **Functions the graph and the tests understand (TS and Go):** functions/methods **< 100 lines** —
   what does not fit gets split into named functions. Named declaration over value-function:
   `export function foo()`, not `export const foo = () => {}`; a callback with logic is extracted into

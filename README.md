@@ -113,8 +113,10 @@ every handoff.
 flowchart TD
     T(["Claude: /squad:run &lt;task&gt;<br/>Codex: $squad:codex-run &lt;task&gt;"]) --> W["lead — serial worktree + BOARD"]
     W --> R{"routing<br/>R0..R6"}
-    R -- "R2 / R4 / R5<br/>(ambiguous)" --> PM["@pm<br/>product spec"]
-    PM --> A
+    R -- "R2 / R4 / R5<br/>(ambiguous)" --> PM["@pm discovery<br/>intent + open decisions"]
+    PM --> H{"product checkpoint<br/>human decides + approves intent"}
+    H --> PS["@pm spec<br/>AC-NN Given/When/Then"]
+    PS --> A
     R -- "R1 / R3 / R6" --> A["@architect<br/>plan → tickets"]
     R -- "R0 trivial" --> D
     A --> D["@developer<br/>TDD + gate + commit"]
@@ -132,7 +134,7 @@ flowchart TD
 
 | Role | Responsibility | Boundary |
 |------|----------------|----------|
-| `@pm` | Turns an ambiguous idea into a product outcome and acceptance criteria. | No code and no technical design. |
+| `@pm` | Discovers the intent first — interviews the human through the lead, one decision at a time with a recommendation — then writes acceptance criteria as `AC-NN Given/When/Then`. | No code and no technical design. |
 | `@architect` | Turns the outcome and real code into the smallest executable ticket. | Writes tickets, never feature code. |
 | `@developer` | Implements one ticket with TDD, runs the gate and commits it. | Cannot approve its own work. |
 | `@qa` | Reviews the frozen commit and returns `APPROVED` or `REJECTED`. | Leaves no product-code changes. |
@@ -159,8 +161,10 @@ orchestrates; roles never call each other.
 ```
 0.  lead                        → run worktree (serial, cap 1) + create/update BOARD
 0b. lead                        → ROUTING: decide WHICH agents run (R0..R6) and print it
-    @pm (routes R2/R4/R5)       → product spec / backlog
-1.  @architect (task or spec)  → 1..N ordered tickets (big task = split with deps);
+    @pm (routes R2/R4/R5)       → discovery: intent + open decisions (why it matters + recommendation)
+    lead ↔ human                → PRODUCT CHECKPOINT: decide, then approve the intent ("yes, that's it")
+    @pm                         → specification: AC-NN Given/When/Then
+1.  @architect (task or spec)  → 1..N ordered tickets (big task = split with deps), citing the AC-NN;
                                   ambiguity = assume + record "Assumption:" in the ticket
                                   (it never stops to ask — the human reviews assumptions)
 2.  @developer (ticket path)    → implements + runs the squad.md gate + commits ONLY its ticket
@@ -180,10 +184,10 @@ first match wins:
 |-------|------|--------|
 | `R0_TRIVIAL` | typo, copy, doc, small style change | **1** — developer (the lead runs the gate) |
 | `R1_STANDARD` | clear requirement over an existing pattern | **3** — architect → developer → qa |
-| `R2_PRODUCT_CLARIFICATION` | unclear WHAT should happen | **4** — pm first |
+| `R2_PRODUCT_CLARIFICATION` | unclear WHAT should happen | **4** — pm first + product checkpoint |
 | `R3_ARCHITECTURE` | new module, data model, contract, integration, dependency | **3** |
-| `R4_PM_ARCHITECT` | ambiguous **and** structural | **4** |
-| `R5_NEW_PROJECT` | repo without `squad.md` | **4** + `inspect-project` + 2 checkpoints |
+| `R4_PM_ARCHITECT` | ambiguous **and** structural | **4** + product checkpoint |
+| `R5_NEW_PROJECT` | repo without `squad.md` | **4** + `inspect-project` + 3 checkpoints |
 | `R6_HIGH_RISK` | payments, auth, isolation, migration, deletion, secrets | **3-4** + checkpoint + elevated QA + security |
 
 Ties break toward the **more expensive** route. `--route R1` or `--full` force it. The chosen route
@@ -240,6 +244,24 @@ match, warns and refuses to restore on its own.
 
 `Risk: high` is not decoration: the lead reads it and raises `@qa` to a stronger model, then runs
 `@security` once before the run closes.
+
+### Discovery before requirements — the PM interviews, the human decides
+
+On the ambiguous routes the `@pm` does not turn the idea into requirements in one step. First it
+runs **discovery**: it reads the repository (it never asks what the code can answer), sorts what
+it knows into `Facts` (verified), `Decisions` (agreed by the human), `Assumptions` and
+`Open decisions`, and returns the open ones — each with *why it matters* and a *recommendation*.
+The lead asks the human one decision at a time, recommendation first, then shows the `Intent`
+block (what, why, who, what changes, what we are not doing, what success and failure look like,
+one real example) and waits for "yes, that's what I want". Only then does the `@pm` write the
+acceptance criteria as `AC-NN Given / When / Then`; the `@architect` cites those IDs in the
+tickets, and the `@qa` reports its verdict by them: `AC-03 FAIL: expected … actual …`. The
+`@developer` never invents product behavior — a choice the ticket did not cover is written down
+as `Assumption:` and surfaced with the verdict, never buried in the code.
+
+Intent, specification and plan are kept apart in *time*, not in files: one spec, one human gate
+before any criterion exists, one more before any code does. Routes `R0`, `R1` and `R3` skip all
+of it — a clear requirement over an existing pattern does not pay for an interview.
 
 **See a whole run:** [`examples/BOARD.md`](examples/BOARD.md) is the board a three-ticket run
 leaves behind — route, queue, iteration counts and verdicts — and

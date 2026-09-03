@@ -64,7 +64,8 @@ as the shared workflow specifies.
   recoverable run to a temporary directory.
 - Preserve dirty user changes in the main repo. Work only in the squad worktree.
 - Never delete a blocked or unmerged run. Leave it recoverable and report the exact resume command.
-- Ask for the explicit checkpoints required by R5 and R6; do not turn routine internal choices
-  into extra questions.
+- Ask for the explicit checkpoints the shared workflow requires — the product checkpoint on
+  R2/R4/R5 (the @pm's open decisions, recommendation first, then "is this the intent?") and the
+  review checkpoint on R5/R6; do not turn routine internal choices into extra questions.
 - Finish only after the canonical close sequence succeeds, or report a concrete blocked state with
   BOARD and worktree paths.

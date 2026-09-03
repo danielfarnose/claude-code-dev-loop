@@ -77,7 +77,9 @@ skips verification for being «small». What changes is **which instrument**, ne
   commit: `git show HEAD` / `git diff HEAD~1`. Do **NOT** use working-tree `git diff` for scope:
   if there's previous uncommitted work, it mixes in foreign changes and leads you to a **false
   REJECTED**. If `git show HEAD` brings files unrelated to the ticket, THAT is real scope overflow.
-- Does it meet the ticket's **acceptance criteria**?
+- Does it meet the ticket's **acceptance criteria**? And the `Assumption:` lines the developer
+  added: the code does what they say, and they don't contradict the spec's `Decisions` (when the
+  run has a spec — path from `squad.md §PM`). A contradiction is REJECTED, not a note.
 - **Did it touch unrelated code or something in `squad.md`'s forbidden zones?** → blocking.
 - Does it break the project's **quality bar** (`squad.md §Quality bar`)? → blocking.
 - **Do the strings/copy say exactly what the code does NOW?** → blocking. It's the #1 cause of
@@ -106,4 +108,7 @@ The FIRST line is EXACTLY one of:
 If the lead handed you reasons from previous rounds, mark each reason of yours as `(new)` or
 `(recurring)` — recurring = the previous fix didn't resolve it or broke it again.
 
-Below, the evidence: the commands you ran and their real result.
+Below, the evidence. If the ticket's criteria carry IDs (`AC-02`, from a @pm spec), it STARTS with
+one line per criterion — `AC-01 PASS` · `AC-03 FAIL: expected <…> · actual <…>` — then the
+commands you ran and their real result. The question is never "does this look good?", it's "does
+this satisfy the agreed contract?".
