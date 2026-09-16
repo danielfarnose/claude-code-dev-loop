@@ -112,13 +112,18 @@ you assumed something ambiguous · risks or dependencies between steps. If it's 
 
 Return the ticket path(s) **in execution order** and a 3-line summary.
 
-**Chain (deferred QA).** If you split into tickets with a REAL dependency between them ("requires
-NN"), mark in each one's `Technical notes` `Chain: <name> · N/M · gate: deferred` (intermediates)
-and on the last one `Chain: <name> · M/M · gate: closing` — the heavy QA runs ONCE, at the close.
-NEVER chain independent tickets just to save QA: no real dependency, no chain.
+**Chain (deferred QA) — group by default.** Tickets that share an area (same screen, same
+module, same SQL object) or have a REAL dependency ("requires NN") go in ONE chain of 3-5:
+mark in each one's `Technical notes` `Chain: <name> · N/M · gate: deferred` (intermediates) and
+on the last one `Chain: <name> · M/M · gate: closing` — the heavy QA (full gate + mutation +
+evidence) runs ONCE per group, at the close. Every ticket still carries ITS OWN tests (TDD): the
+chain defers the heavy review, never the unit tests. A ticket with no sibling stays unchained.
+Add `Requires: NN` only when the code really leans on NN — the lead uses it to decide whether the
+developers can pipeline. Rule change 2026-09-16 by the operator: the per-ticket full gate + opus
+review was the biggest token line in every run; grouping cuts it to one per area.
 Exceptions: risk ticket (the list below) → `gate: full` even if it's in a chain — unless it's the
 LAST one: there it goes `gate: closing` + `Risk: high` (the close already runs the full gate with
-opus and doesn't lose the range); chains of more than 4-5 tickets → cut them with an intermediate
+opus and doesn't lose the range); chains of more than 5 tickets → cut them with an intermediate
 `gate: closing`.
 
 **High risk.** A ticket that touches payments, auth/permissions, tenant isolation, migrations or

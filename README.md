@@ -301,8 +301,8 @@ download endpoint never checked whether the invoice belonged to the caller.
 
 Most of the design here exists because something was measured, not because it sounded good:
 
-- **Deferred QA on chains.** Tickets with a REAL dependency carry `Chain: <name> · N/M · gate:
-  deferred|closing|full`. Intermediate tickets get a cheap diff review with no gate and no
+- **Deferred QA on chains.** Tickets grouped by area (3-5, same screen/module) or with a REAL
+  dependency carry `Chain: <name> · N/M · gate: deferred|closing|full`. Intermediate tickets get a cheap diff review with no gate and no
   evidence (the developer already ran the gate green); the closing ticket runs the full gate once
   over `base..HEAD`. Takes 2M gate runs down to M+1, and M evidence captures down to 1.
 - **dev‖qa pipeline as the default.** `@qa` doesn't need the run's worktree, it needs *the commit*.

@@ -156,15 +156,17 @@ one line of error and you continue.
 1. @architect (task or pm spec) → 1..N ordered tickets (big task = split with dependencies).
    Register them all in the BOARD as `ready`, in order. Phase `implementing`.
    **R0 skips this step**: you write the micro-ticket yourself, in the same tickets path.
-   **Chains (deferred QA):** tickets with a REAL dependency between them carry
-   `Chain: <name> · N/M · gate: deferred|closing|full` (the architect marks it — it lives in
-   the ticket, so `resume` respects it). No `Chain:` field = normal per-ticket flow.
-   **Tickets WITHOUT a chain go FIRST in the queue.** A chain forces serial work (N+1 leans on
-   N), so every chained ticket is a pipeline opportunity that is lost: placed at the end, the chain
-   lets all the independent ones pipeline first. Measured in
-   RUN-20260803-02 — 3 tickets, 2 in a chain, **a single** parallel opportunity in the whole run.
-   Ask the @architect for it explicitly when launching it, and if it comes back with the chain up
-   front without a dependency forcing it, reorder it yourself (the order is yours, the chain is his).
+   **Chains (deferred QA) — the default grouping.** The architect groups tickets by area (same
+   screen/module/SQL object) or real dependency into chains of 3-5, marked
+   `Chain: <name> · N/M · gate: deferred|closing|full` (it lives in the ticket, so `resume`
+   respects it). Intermediates get the cheap-diff QA; the closing ticket gets the full gate +
+   opus ONCE over the whole range. Each ticket keeps its own tests. No `Chain:` = lone ticket,
+   normal per-ticket flow. Ask the @architect for the grouping explicitly when launching it; if it
+   comes back with 5 unrelated singles, send it back — measured 2026-09-16: 2083 tests × 5 full
+   gates × opus per run was the biggest token line, and the operator asked for one heavy gate
+   per group.
+   **Order:** lone tickets first, then chains. Inside a chain, `Requires: NN` (real code
+   dependency) forces serial developers; without it the developers pipeline as usual.
    **QA evidence (lives in the ticket, not in your memory — that's how `resume` respects it):**
    - Default: every ticket carries `QA: screenshots` (the normal gate's evidence).
    - With `--video`: tell the architect that every ticket touching UI carries `QA: video`.
@@ -233,9 +235,10 @@ one line of error and you continue.
         tickets are only committed at closing, so they aren't in the frozen tree).
       - @developer of ticket **N+1** → the run's worktree path, as always.
 
-      **Serial (don't parallelize) if:** N+1 declares `Chain:` with N —its code leans on the
+      **Serial (don't parallelize) if:** N+1 declares `Requires: N` —its code leans on the
       previous one— · the route is `R0_TRIVIAL` (there's no @qa and you run the gate: serial is
-      faster) · there's no other ticket left in the queue. **Those three, and no others.**
+      faster) · there's no other ticket left in the queue. **Those three, and no others.** Being in
+      the same `Chain:` is NOT a reason: a chain groups the heavy QA, it does not serialize devs.
       **Two tickets stepping on the same files is NOT a reason to serialize the @qa.** That
       clash is between *developers*, and the developers already go one at a time. The @qa reviews the
       *frozen* worktree of the commit: nobody touches it while it reviews. If the @architect warns that
