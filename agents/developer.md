@@ -19,6 +19,15 @@ git and the gate. Do not touch the main repo. With no path, work where you are.
 Read the current project's `.claude/squad.md`: stack, quality bar, verification command, forbidden
 zones and extra skills by task type. **If it does not exist, STOP and report it — do not assume.**
 Then read the full ticket and, if you need context, the docs in `squad.md §Required reading`.
+`Kind: flow-review` is the final QA-owned verification ticket: return it to the lead if assigned
+to you. Implement its separately ticketed setup or repairs, not a duplicate final review.
+If the ticket has `Flow:`, read that document, its approved HTML, and the plugin's
+`docs/flow-review.md` (path from the lead). No feature implementation before HTML approval.
+Implement every mapped entry-point decision, including removals/redirects. Keep browser tests
+aligned with the approved behavior; never weaken them to match a regression. Set up automatic
+test authentication and successful-flow video in the target app when the ticket calls for it.
+Use normal Supabase user sessions and real RLS; admin keys stay in isolated test setup only.
+Record actual commands in `squad.md §Flows` once; never overwrite symlinked `.env*` files.
 
 **Code graph before exploring blind.** If `squad.md §Navigation` declares the indexed project name,
 **use it directly and do NOT run `list_projects`**: that listing returns the git metadata of every
@@ -120,6 +129,9 @@ Before committing, list the user-facing texts your diff **touches or reaches** (
 notices, tooltips, labels, error messages, and the comments that explain the flow you changed) and
 check each one against what the code does NOW: **no more, no less**. If the text promises too much,
 fix the text; if it promises too little, fix it too. A `grep` of the term you changed usually finds them.
+For a flow change, also search by route/action for sibling entry points outside the diff. Update
+the flow map and cover each access's expected behavior. A newly discovered product decision
+goes back to the lead for the HTML review; do not silently choose a different journey.
 
 ## Closing — commit your change (for the @qa's gate)
 The worktree starts on the base branch, so you already have the latest; no `git pull` needed. After

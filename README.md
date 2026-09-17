@@ -38,6 +38,9 @@ squad breaks that feedback loop:
   approval checkpoints, independent QA and a security pass.
 - **Intent before code.** On an ambiguous task the PM agent interviews you — one decision at a
   time, with a recommendation — and you approve the intent before anything is planned.
+- **Flows before screens.** User-facing changes get a clickable HTML preview and an inventory
+  of every affected entry point before implementation. Ask for "prueba con WF" or `--wf` to add
+  one final workflow-review ticket with logic checks, browser video and your product review.
 - **Recoverable execution.** Every transition is written to `BOARD.md`, so an interrupted run can
   resume instead of starting over.
 - **Isolated work.** Each run happens in its own Git worktree and reaches the base branch only
@@ -133,13 +136,22 @@ flowchart TD
     H --> PS["@pm spec<br/>AC-NN Given/When/Then"]
     PS --> A
     R -- "R1 / R3 / R6" --> A["@architect<br/>plan → tickets"]
-    R -- "R0 trivial" --> D
-    A --> D["@developer<br/>TDD + gate + commit"]
+    R -- "R0 trivial" --> P
+    A --> P{"user-facing change?"}
+    P -- "yes" --> V["entry-point map + HTML<br/>human approves preview"]
+    P -- "no" --> D
+    V --> D["@developer<br/>TDD + gate + commit"]
     D --> Q["@qa — same gate,<br/>frozen worktree"]
     Q -- "REJECTED (max 3)" --> D
     Q -- "APPROVED" --> L["recording-learnings"]
     L -- "next ticket" --> D
-    L -- "queue empty" --> M["merge --ff-only<br/>+ clean worktree"]
+    L -- "implementation done" --> C{"WF explicitly requested?"}
+    C -- "yes" --> F["final WF ticket — @qa Flow close<br/>journey + logic checks + video"]
+    F -- "failed" --> D
+    F -- "passed" --> U["human reviews real result"]
+    U -- "approved" --> E["video + HTML + report on final Trello card<br/>WF ticket done"]
+    E --> M["merge --ff-only<br/>+ clean worktree"]
+    C -- "no" --> M
     S["@security<br/>(high-risk close)"] -.-> M
 ```
 
@@ -152,7 +164,7 @@ flowchart TD
 | `@pm` | Discovers the intent first — interviews the human through the lead, one decision at a time with a recommendation — then writes acceptance criteria as `AC-NN Given/When/Then`. | No code and no technical design. |
 | `@architect` | Turns the outcome and real code into the smallest executable ticket. | Writes tickets, never feature code. |
 | `@developer` | Implements one ticket with TDD, runs the gate and commits it. | Cannot approve its own work. |
-| `@qa` | Reviews the frozen commit and returns `APPROVED` or `REJECTED`. | Leaves no product-code changes. |
+| `@qa` | Reviews the frozen commit; in opt-in **Flow close** mode, verifies the final workflow ticket, including coherence and business logic. Returns `APPROVED` or `REJECTED`. | Leaves no product-code changes. |
 | `@security` | Audits the project's declared threat model. | Reports and files tickets; never fixes. |
 
 Every role has a mandatory **Step 0**: read the current project's `.claude/squad.md` — stack,
@@ -182,13 +194,92 @@ orchestrates; roles never call each other.
 1.  @architect (task or spec)  → 1..N ordered tickets (big task = split with deps), citing the AC-NN;
                                   ambiguity = assume + record "Assumption:" in the ticket
                                   (it never stops to ask — the human reviews assumptions)
+1b. lead ↔ human (user flows)   → entry-point map + clickable HTML approval before implementation
 2.  @developer (ticket path)    → implements + runs the squad.md gate + commits ONLY its ticket
 3.  @qa (developer's commit)    → reviews that commit + runs the SAME gate
                                   → APPROVED / REJECTED: [reasons]
 4.  REJECTED → back to a NEW developer with the reasons. Max 3 iterations per ticket.
 5.  APPROVED → recording-learnings skill → next ticket in the queue
-6.  Queue empty and all done → merge --ff-only into the base branch + delete the worktree
+6.  Implementation done       → only with WF requested: final WF ticket → @qa Flow close
+                                  → video + logic findings + human review + Trello attachments
+7.  All required reviews pass → merge --ff-only into the base branch + delete the worktree
 ```
+
+### Optional final workflow ticket — Claude Code and Codex
+
+For user-facing changes, every route follows [flow review](docs/flow-review.md), even if the
+project already has `DESIGN.md`. The architect maps all ways into the affected action and shows
+a clickable HTML before the developer builds it. The map states which accesses stay, change,
+disappear or redirect. It also checks the proposed journey for contradictions and logic errors.
+
+**The final WF test is off by default.** Ask for **"prueba con WF"**, **"test with WF"**, or
+`--wf` to add it. WF means the complete user workflow; its wireframe is the HTML prototype.
+The same request works in both hosts:
+
+```text
+# Claude Code
+/squad:run create quotes from the client page --wf
+
+# Codex
+$squad:codex-run create quotes from the client page --wf
+
+# Natural-language equivalent, in either host
+...create quotes from the client page; prueba con WF
+```
+
+The architect appends **one final ticket**, after all implementation and test-setup tickets.
+It explains the starting state, steps, expected result and checks in plain language. `@qa` runs
+it in **Flow close** mode once the other tickets are done. It is not another developer ticket
+and is not repeated for each task. Repairs go before it; retries and resume reuse the same ticket.
+
+For example, three implementation tickets (client validation, quote form, old-access removal)
+are followed by this final card:
+
+> **[WF] Create a quote from a client end to end**
+>
+> **Journey:** Open a client → create a quote → add items → save → reopen the saved quote.
+>
+> **Checks:** The quote belongs to that client; totals and status survive reload; dashboard,
+> menu, mobile and old URLs cannot bypass the agreed flow; essential existing journeys still work.
+>
+> **Attachments:** Actual workflow video, approved HTML prototype and zipped test report.
+>
+> **Done:** QA passes, attachments are delivered and the human accepts the result.
+
+QA also looks for **inconsistencies and business-logic errors beyond green tests**: conflicting
+buttons or copy, forgotten entry points, missing prerequisites, dead ends, duplicate actions,
+incorrect states or outcomes that contradict the product rules. Findings include reproduction
+steps, expected versus actual behavior and evidence. A wrong product rule returns to the
+architect/human; tests are not weakened to hide it.
+
+The lead puts the journey summary and QA findings in the final ticket's BOARD Notes, which
+`trello-sync.mjs` mirrors to its card. `trello-attach.mjs` attaches the **video + approved HTML +
+report to that final card**, using the existing board and credentials. Implementation cards may
+link to it. Retain local evidence outside disposable worktrees and retry uploads without rerunning
+passing tests. Unique flow/run/commit/case/attempt filenames prevent stale attachment reuse.
+
+Without an explicit WF request, the normal TDD/per-ticket QA loop runs with no extra final WF
+ticket, recording or human result-review gate. The HTML planning checkpoint still applies to
+user-facing changes. `--video` remains per-ticket evidence; it does not enable WF testing.
+
+### Local WF tests, automatic Supabase sessions and video
+
+When WF is requested, use the app's existing browser tests (default: local Playwright) for the
+essential and requested/affected journeys. Record successful flows too and show the real result
+for human acceptance. Missing required tests or video leaves the final ticket incomplete.
+
+For Google-login apps backed by Supabase, default to the official local Supabase stack and
+synthetic users prepared automatically by the test setup. Create a normal Supabase session
+without asking the human for an email/password each run; keep real RLS and role checks. Test
+Google OAuth itself separately when a real authorized account is available. Record that
+coverage separately so a post-login journey never claims to have verified Google login.
+
+The target app declares its real startup, auth/seed, test and artifact paths in `squad.md §Flows`.
+At its first requested WF test, missing setup becomes a preceding implementation ticket, once.
+Prefer native app/Playwright execution; only local Supabase needs its container
+runtime. No paid test/video service or AI calls per normal browser test. Agent work still uses
+the host's usual model allowance. Squad supplies the procedure, not a universal auth adapter or
+a bundled browser runner; session wiring follows each app's installed Supabase SDK and SSR/SPA setup.
 
 ### Routing — not every task needs the full squad
 
@@ -206,7 +297,9 @@ first match wins:
 | `R6_HIGH_RISK` | payments, auth, isolation, migration, deletion, secrets | **3-4** + checkpoint + elevated QA + security |
 
 Ties break toward the **more expensive** route. `--route R1` or `--full` force it. The chosen route
-is stored in the BOARD, so `resume` never re-routes.
+is stored in the BOARD, so `resume` never re-routes. HTML planning for user-facing changes and
+the explicit WF opt-in apply across routes. Even R0 uses independent QA for a requested final
+WF ticket. A pure documentation typo still stays cheap.
 
 ### BOARD — visual board and recoverable state in one file
 
@@ -384,7 +477,7 @@ codex plugin add squad@squad
 
 ### Optional credentials
 
-Everything runs without them: Trello sync is skipped and Claude's developer/QA roles use their
+Core development runs without them: Trello sync is skipped and Claude's developer/QA roles use their
 native fallback. Copy `.env.example` to `~/.claude/squad.env` for Claude Code or
 `~/.codex/squad.env` for Codex. You can instead point both hosts at one file with
 `SQUAD_ENV_FILE`. The file lives **outside** the plugin cache on purpose (the cache is replaced on
@@ -474,6 +567,8 @@ squad/
 ├── templates/
 │   ├── squad.md         # the per-project contract template
 │   └── ticket.md        # ticket template (product first, <60s, 3-5 criteria)
+├── docs/
+│   └── flow-review.md   # HTML, entry points, local Supabase sessions and flow video
 └── examples/            # what a run leaves behind: a board and one rejected ticket
 ```
 

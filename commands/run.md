@@ -1,6 +1,6 @@
 ---
 description: Fires the squad loop with routing (which agents run), serial worktree, recoverable BOARD, multi-ticket queue and learnings. The ONLY trigger of the loop.
-argument-hint: <task> [--video] [--route R0..R6|--full] | resume | status
+argument-hint: <task> [--wf] [--video] [--route R0..R6|--full] | resume | status
 ---
 
 Run the **squad development loop** on:
@@ -26,6 +26,12 @@ BOARD and tickets travel with the code and get merged together at closing. If it
 - Phase: planning | implementing | patrol | idle
 - Current ticket: <slug> · Iteration: 1/3   ← in pipeline there are two: `<slug-N> (qa) · <slug-N+1> (dev)`
 - Next step: <exactly what comes next>
+- Flows: <IDs + flow doc/HTML paths, or n/a with reason>
+- HTML review: pending | approved | n/a · Revision: <artifact hash> · Decision: <human response>
+- WF: off | requested · Request: <user instruction> · Ticket: <final review slug, or n/a>
+- Flow review: pending | passed | blocked | n/a · Commit: <tested SHA> · Evidence: <persistent paths>
+- PM review: pending | approved | changes-requested | n/a · Commit: <reviewed SHA> · Decision: <human response>
+- Trello evidence: pending | uploaded | blocked | n/a · Commit: <reviewed SHA> · Cards: <links + filenames in ticket Notes>
 
 ## Tickets
 | Ticket | Title | Theme | Prio | Status | Iter | Commit | Notes |
@@ -94,6 +100,14 @@ APPROVED as well as on REJECTED (the photo of the defect is the most useful one)
 what's already attached by name, so re-running it is free. Same criterion as the sync on a failure:
 one line of error and you continue.
 
+Completed-flow evidence has an additional local retention requirement: follow
+`docs/flow-review.md` before reusing or cleaning a review worktree. A failed Trello upload must
+not lose the report/video the human needs to review.
+**Requested WF delivery:** attach the workflow video + HTML prototype + report to the final
+`Kind: flow-review` ticket's Trello card using the uploader above. Follow `docs/flow-review.md`;
+the card's BOARD Notes explain the journey, outcome and logic findings. No repeated flow-video
+upload on implementation tickets. A failed upload leaves the final ticket pending for closing.
+
 ## /squad:run <task>
 
 0. **Run worktree (you run it).** The loop is **serial**: one run = one worktree = one branch
@@ -153,9 +167,30 @@ one line of error and you continue.
      a generic SaaS look; skipping it because "the task seemed clear" is the failure mode it exists
      for. BOARD `Next step:` says which of the two calls is pending; `resume` also reads the spec:
      no `AC-` lines → discovery isn't closed.
+0c. **Flow scope — every route.** Read `${CLAUDE_PLUGIN_ROOT}/docs/flow-review.md` when the
+   change affects UI or a user flow. Apply it independently of routing, `DESIGN.md`, `--video`
+   or the presence of a PM role. Hand its absolute path to the architect/developer/QA as needed.
+   The architect maps every affected entry point and prepares the flow doc + clickable HTML
+   alongside the tickets; on R0 you do it. Record the flow IDs/paths and HTML review in BOARD.
+   Purely internal work records `Flows: n/a — <reason>` and `HTML review: n/a`.
+0d. **WF is opt-in, in both Claude and Codex.** Default `WF: off`. An explicit request such as
+   "prueba con WF", "test with WF", or `--wf` sets `WF: requested`; record the instruction.
+   Merely mentioning a workflow, changing UI, `--full`, or `--video` does not enable it.
+   When off, do not add a final WF ticket or extra flow-video/product-review gate; record
+   `Flow review`, `PM review`, and completed-flow `Trello evidence` as `n/a`.
+   When requested, use `docs/flow-review.md` to append exactly one final review ticket for the
+   requested flow set. It may review an existing flow without feature tickets. Missing browser/
+   auth setup becomes an implementation ticket before it. A late request adds/reuses that same
+   final ticket; resume preserves the setting and never duplicates it.
 1. @architect (task or pm spec) → 1..N ordered tickets (big task = split with dependencies).
    Register them all in the BOARD as `ready`, in order. Phase `implementing`.
    **R0 skips this step**: you write the micro-ticket yourself, in the same tickets path.
+   With `WF: requested`, the architect (lead on R0) adds the final ticket using
+   `templates/ticket.md`: `Kind: flow-review`, `Type: logic`, `QA: video`, `Flow:` and
+   `Depends on:` all implementation/setup/repair tickets in this run. It explains the full
+   journey, expected result, entry-point/logic checks and attachments in plain language.
+   Keep it LAST, after independent tickets and chains; never give it a `Chain:` field or send
+   it to @developer. It goes directly to independent @qa in step 3b, even on R0.
    **Chains (deferred QA) — the default grouping.** The architect groups tickets by area (same
    screen/module/SQL object) or real dependency into chains of 3-5, marked
    `Chain: <name> · N/M · gate: deferred|closing|full` (it lives in the ticket, so `resume`
@@ -165,23 +200,31 @@ one line of error and you continue.
    comes back with 5 unrelated singles, send it back — measured 2026-09-16: 2083 tests × 5 full
    gates × opus per run was the biggest token line, and the operator asked for one heavy gate
    per group.
-   **Order:** lone tickets first, then chains. Inside a chain, `Requires: NN` (real code
-   dependency) forces serial developers; without it the developers pipeline as usual.
+   **Order:** lone implementation tickets first, then chains, then the optional final WF ticket.
+   Inside a chain, `Requires: NN` (real code dependency) forces serial developers; without it
+   the developers pipeline as usual.
    **QA evidence (lives in the ticket, not in your memory — that's how `resume` respects it):**
    - Default: every ticket carries `QA: screenshots` (the normal gate's evidence).
    - With `--video`: tell the architect that every ticket touching UI carries `QA: video`.
    - The task asks for video on one specific ticket ("X with video") → the architect marks only that one.
+   - `--wf` / "prueba con WF" requests one final flow-review ticket with video at step 3b.
+     Link involved tickets to the flow doc; `--wf` alone does not request per-ticket video.
 1b. **Review checkpoint — BEFORE touching code.** Push to Trello and show the operator the queue
    in a compact table (`# · ticket · what it does in one line · chain/gate`, plus the `AC-NN` each
    ticket covers when the run has a spec), plus the
    `Route:` line, the hard data the architect verified and the gate's baseline. Ask "do I start or do I
-   adjust scope/order?" and **wait for their answer**. A yes here also means "if the code satisfies
-   these criteria, I'll consider the result correct" — say so in one line when there's a spec.
+   adjust scope/order?" and **wait for their answer**. For user flows, open the clickable HTML
+   and entry-point decisions in this same checkpoint, and record the approved HTML revision in
+   BOARD. This approves the intended behavior; when WF is requested, the human also reviews
+   the real result at step 3b.
    Changing the scope here is free; after 9
    commits it isn't. If they ask for adjustments → go back to the @architect with them and repeat this checkpoint.
-   **R0 skips it** (asking permission for a typo is friction). In `R5`/`R6` it is **mandatory**: without
-   an explicit yes, no code gets written.
-2. For each ticket in the queue, in order — max **3 iterations**, always show "Iteration X/3".
+   **R0 skips the ticket-queue checkpoint**, but user-visible changes still need the HTML
+   preview/approval from `docs/flow-review.md`; reuse an unchanged approved preview. In `R5`/`R6`
+   and for user-flow changes it is **mandatory**: without an explicit yes, no feature code gets written.
+2. For each **implementation ticket** in the queue, in order — max **3 iterations**, always
+   show "Iteration X/3". Reserve the final `Kind: flow-review` ticket for step 3b; it is never
+   the developer's N+1 in the pipeline below.
    **Hand each agent the worktree path** (BOARD's `Worktree:`): that's where they read, edit,
    commit and run the gate. No agent works in the main repo.
 
@@ -290,22 +333,49 @@ one line of error and you continue.
       "learnings: 0" is valid). BOARD: → `done` + hash + Iter. Ticket with
       `gate: deferred` → `done` with the note `gate deferred → <closing-ticket>` (honest about what was
       verified). Next ticket.
-3. Queue empty → if any `done` ticket carries `Risk: high` → ONE call to @security over those
-   commits (cap 1 per run) before the report. BOARD: phase `idle` (+ push to Trello, like every
-   BOARD write).
-4. **Closing — return the work to the base branch.** Only with **all tickets `done`**:
-   a. In the worktree, commit BOARD + tickets: `git add <BOARD.md> <tickets>` +
+3. Implementation queue empty → keep BOARD active until the closing checks finish.
+3b. **Final WF ticket — only with `WF: requested`.** With all its dependencies `done`, move
+   the final `Kind: flow-review` ticket `ready → qa`. Follow `docs/flow-review.md`: freeze the
+   final commit, invoke independent @qa in **Flow close** mode with the final ticket plus all
+   flow docs/implementation tickets. Run essential + requested/affected journeys with video;
+   review coherence and business logic as well as test results. This includes R0.
+   A product failure creates a repair ticket BEFORE the final WF ticket and goes through step 2
+   (max 3 flow-fix rounds). Reopen the same final ticket and invalidate affected evidence; never
+   create another WF ticket. Environment/auth/missing-evidence problems block that ticket with
+   their cause. A flawed product rule goes back to the architect/human, not a weaker test.
+   Preserve and show the HTML report/video; attach the video, approved HTML and report to the
+   final ticket's Trello card. Record the verdict, logic findings, card link and filenames in
+   that ticket and BOARD. QA approval alone leaves it in `qa` until the human's `PM review`
+   and required attachment delivery are complete. Only then mark the final ticket `done`.
+   While awaiting the human, keep the worktree and `Next step` pointing at PM review. Never
+   interpret ticket approval, silence, or missing video as product acceptance.
+   With `WF: off`, skip this step; normal per-ticket verification still applies.
+3c. If any `done` ticket carries `Risk: high`, call @security over the final affected range
+   after flow repairs. Reuse an audit only for unchanged code; any resulting fixes go through
+   the relevant gates again, reopening the same final WF ticket when requested. Do not merge
+   unresolved blocking findings.
+4. **Closing — return the work to the base branch.** Only with **all tickets `done`**, required
+   `Flow review: passed` and `PM review: approved` (or both explicitly `n/a`), and requested
+   `Trello evidence: uploaded` for the reviewed version (or `n/a` when no board/delivery is configured,
+   or an explicit human waiver):
+   a. Preserve flow evidence first. Set BOARD phase `idle` (the verified queue is complete);
+      `Next step: merge + clean` stays explicit until close. In the worktree, commit BOARD + tickets + flow docs/HTML by
+      explicit path: `git add <BOARD.md> <tickets> <flow-artifacts>` +
       `git commit -m "chore(run): board and tickets for RUN-…"`. By explicit path, never `-A`
       (the bootstrap symlinks show up as untracked by design).
    b. `bash ${CLAUDE_PLUGIN_ROOT}/scripts/worktree.sh merge <repo> <run-id> <base>` — it's `--ff-only`. If
       it refuses (the base moved), follow its instruction: `git rebase <base>` in the worktree →
-      **re-run the gate** → merge again. Never merge without ff: it would put code into the base that
+      **re-run the gate and step 3b on the new version** → merge again. Never merge without ff: it would put code into the base that
       the gate did not verify.
    c. `bash ${CLAUDE_PLUGIN_ROOT}/scripts/worktree.sh clean <repo> <run-id>` → deletes worktree and branch.
    **Any ticket `blocked` → do NOT merge.** BOARD `blocked`, the worktree stays alive for
    inspection, and report it explicitly. The serial cap prevents starting another run until it's resolved:
    that's on purpose.
-5. Report: route used, done/blocked tickets, commits, iterations, learnings, and whether it merged or not.
+5. An active worktree with `Next step: merge + clean` is still a pending close even if its
+   queue is idle; no active worktree after merge + clean means close completed. Report: route used, done/blocked tickets,
+   commits, iterations, learnings, flow/PM verdicts, persistent report/video links, Trello delivery
+   status and card links, Google OAuth
+   coverage where applicable, and whether it merged or not.
 
 ## /squad:run resume
 
@@ -315,6 +385,15 @@ one line of error and you continue.
    **respect the `Route:` already written: don't re-route**.
 3. If the BOARD contradicts `git log` (a commit made but not noted, a done not marked), git is the truth:
    reconcile the BOARD first and continue.
+   Also reconcile flow/HTML/PM review with the current code and artifact revisions. Missing
+   fields in an older BOARD mean assess applicability and fill them, not implicit approval.
+   Preserve `WF: off|requested` from BOARD unless the user explicitly updates the request.
+   A late WF request follows step 0d and reuses/adds one final ticket. For an older BOARD
+   without the field, only an explicit user WF request enables it; an existing `Flow:` alone
+   does not. When off, fill the extra review/delivery fields as `n/a`. Reuse the recorded
+   final ticket. All implementation tickets done with a pending final WF ticket, flow/PM
+   review or WF attachment delivery resumes step 3b, not merge.
+   If only upload is pending, reuse the retained evidence and retry delivery, not the tests.
 4. No active worktree and no run in the BOARD → say so and stop.
 
 ## /squad:run status

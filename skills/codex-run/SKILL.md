@@ -35,6 +35,21 @@ the project contract. Ignore unrelated detached or user-created worktrees. If th
 squad worktree and no `.claude/squad.md` from which to resolve a BOARD, report `active run: none`
 and stop; ticket counts are unavailable, not zero.
 
+## Optional final WF ticket — identical in both hosts
+
+Honor the canonical opt-in: "prueba con WF", "test with WF", or `--wf` sets `WF: requested`;
+otherwise it is off. Preserve that choice on resume. HTML planning for user-facing changes
+still applies; `--video` alone does not request a final workflow review.
+
+Append/reuse exactly one final `Kind: flow-review` ticket after implementation/setup/repairs.
+Do not dispatch it to a developer or pipeline it with unfinished work. Once its dependencies
+are done, launch a fresh native Codex QA subagent with `agents/qa.md` in **Flow close** mode,
+the final ticket, `docs/flow-review.md`, flow artifacts and the frozen final commit/range.
+Require coherence/business-logic checks and a real browser video. The lead puts the journey
+summary in that ticket's BOARD Notes and attaches video + approved HTML + report to its Trello
+card using the existing scripts and Codex credentials. Mark it done only after QA, human
+acceptance and required delivery. No new role, paid runner or Claude runtime is needed in Codex.
+
 ## Launch a role
 
 For each `@pm`, `@architect`, `@developer`, `@qa`, or `@security` call:
@@ -66,6 +81,7 @@ as the shared workflow specifies.
 - Never delete a blocked or unmerged run. Leave it recoverable and report the exact resume command.
 - Ask for the explicit checkpoints the shared workflow requires — the product checkpoint on
   R2/R4/R5 (the @pm's open decisions, recommendation first, then "is this the intent?") and the
-  review checkpoint on R5/R6; do not turn routine internal choices into extra questions.
+  review checkpoint on R5/R6, HTML approval for user-facing changes, and final human result
+  review only when WF is requested; do not turn routine internal choices into extra questions.
 - Finish only after the canonical close sequence succeeds, or report a concrete blocked state with
   BOARD and worktree paths.

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-// Uploads @qa evidence (screenshots) to the ticket's Trello card. Companion to trello-sync.mjs:
+// Uploads @qa evidence (screenshots, flow videos, report archives) to the ticket's Trello card.
+// Companion to trello-sync.mjs:
 // that one mirrors the BOARD's TEXT, this one uploads the FILES the BOARD cannot carry. The LEAD
 // runs it when closing a verdict, with the paths @qa reported.
 // Usage: node trello-attach.mjs <trello-board-id> <ticket-slug> <file...> [--dry-run]
 // Idempotent: if the card already has an attachment with that name it is skipped (re-running is free).
+// Use immutable names with flow/run/commit/case/attempt; never reuse video.webm for a new result.
 // Credentials: TRELLO_KEY + TRELLO_TOKEN in SQUAD_ENV_FILE or ~/.claude/squad.env, same as
 // trello-sync.mjs. The Codex adapter passes ~/.codex/squad.env explicitly.
 import { readFileSync, openAsBlob } from "node:fs";

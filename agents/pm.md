@@ -85,6 +85,12 @@ should have caught it).
   Every important observable behavior has at least one. The @architect cites these IDs in the
   tickets and the @qa reports its verdict by them — that's the contract.
 - 3-8 is the normal range. More → the intent is too big: say so and propose the split.
+- For user flows, state what changes across all known entry points and what must no longer be
+  possible. Cite current-behavior evidence and flag gaps for the architect's entry-point map.
+  Flag contradictory actions, missing prerequisites and illogical outcomes before planning.
+  The lead shows a clickable HTML before implementation. Only an explicit WF test request
+  adds a final workflow ticket, real video and human result review (`docs/flow-review.md`).
+  Approval of intent does not replace the applicable reviews.
 
 ## Spec format — ONE file at the path from `squad.md §PM`, max ~1.5 pages
 

@@ -1,6 +1,6 @@
 ---
 description: Autonomous bug hunt — scans the project, creates a ticket per finding and fixes the P1s on its own (developer→qa loop). P2/P3 stay queued for /squad:run.
-argument-hint: "[area to focus on] [--sec]"
+argument-hint: "[area to focus on] [--sec] [--wf]"
 ---
 
 Run a **bug patrol** over the current project:
@@ -35,11 +35,21 @@ You (LEAD) orchestrate; agents do NOT call each other. Caveman mode. Non-blockin
    any ticket. BOARD Notes for these rows follow `/squad:run`'s rule: the 1st note is the headline
    (section + impact, plain language), run jargon goes in the later bullets or nowhere.
 3. **Autonomous P1 fix** — **cap 3 per run**, in order:
+   For fixes that affect a user flow, first apply `/squad:run` steps 0c/1b and
+   `docs/flow-review.md`: show and approve the HTML, reusing an unchanged approved artifact.
    each P1 goes through the `/squad:run` step 2 loop (developer → qa, max 3 iterations, BOARD at
    every transition, learnings on APPROVED). `blocked` → next P1.
-4. **Close:** BOARD phase `idle`. Commit BOARD + tickets by explicit path, then
+4. **Close:** only if the user explicitly requested "prueba con WF" / `--wf`, apply
+   `/squad:run` step 0d and append one final WF ticket after the P1 fixes, using those fixes as
+   dependencies (queued P2/P3 findings are outside this run's implementation scope). Run step
+   3b for that ticket: logic/coherence checks, retained video, human review and attachments to
+   its own Trello card. Otherwise record `WF: off` and skip that extra gate. Always apply step
+   3c for final high-risk changes. Set phase `idle`
+   only when the verified queue is complete, with `Next step: merge + clean` until close.
+   Commit BOARD + tickets + flow planning artifacts by explicit path, then
    `worktree.sh merge` + `clean` (same as `/squad:run`). A `blocked` P1 → **don't merge**: the
-   worktree stays alive. Report: findings by priority · tickets created · P1s fixed
+   worktree stays alive; likewise for incomplete required flow/PM review or Trello evidence
+   delivery. Report: findings by priority · tickets created · P1s fixed
    (commits) · blocked with reason · what's queued for `/squad:run`.
 
 ## Rules

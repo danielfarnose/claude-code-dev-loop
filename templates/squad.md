@@ -50,9 +50,25 @@ If this section is missing, the agents use the default and carry on. -->
 ## §Verification — @qa and @developer gate
 <!-- THE exact command (or skill) that decides green/red. It is the SAME truth for developer and qa.
 Add conditional extra checks: "if it touches runtime → startup smoke", "if it touches UI → ...".
-Video (if a ticket marks `QA: video`): exact recording command, e.g.
-`npx playwright test <spec of the flow touched> --video=on --trace=on` (artifacts in test-results/).
-No e2e specs for the flow → @qa reports it as "video not available", it doesn't block. -->
+Ticket video: actual project command/config; Playwright records via `use.video`, not a
+`--video` CLI flag. Opt-in final WF verification and video are declared below. -->
+
+## §Flows — HTML, automatic login and video
+<!-- Flow docs + clickable HTML path (default: <tickets-path>/flows/).
+HTML planning applies to user-facing changes. Final WF tests/video run ONLY on an explicit
+"prueba con WF" / --wf request: one final Kind: flow-review ticket, never one per task.
+Exact existing commands: start test app · seed/auth setup · essential flows · affected flows.
+Test app URL + isolated database/auth target (never infer safety from a localhost app alone).
+Default web runner: existing tests, otherwise local Playwright. Supabase: local CLI stack;
+fixed synthetic users, automatic normal user sessions, real RLS; no manual email/password loop.
+Record actual auth setup path and fixture roles; secret VALUES never go in this file.
+HTML report + video paths, retained under <main-repo>/.squad-artifacts/<run-id>/<commit>/
+(Git-ignored) before worktree cleanup. The requested WF ticket needs successful-flow video,
+entry-point checks and a review of incoherent behavior/business-logic errors.
+With Trello configured above, attach video + approved HTML + report to that final ticket's card
+and record delivery in BOARD; reuse the board + ticket slug mapping and existing credentials.
+Unknown setup stays unknown; ticket the missing setup. See the plugin's docs/flow-review.md.
+Google OAuth coverage is separate from authenticated app flows. No UI: n/a + reason. -->
 
 ## Forbidden zones (blocking for @qa)
 <!-- Folders/files the dev squad NEVER touches + hard product rules. -->

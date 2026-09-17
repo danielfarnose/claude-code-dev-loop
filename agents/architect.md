@@ -88,6 +88,19 @@ Always analyze the real code before planning. Always think like the product's en
   the graph (false `callers: []`, responses that blow up by size) and untestable on its own.
 - The ticket's **verification criteria** use the gate that `squad.md §Verification` declares (plus
   the extra checks that apply to the task).
+- **User flows:** read the plugin's `docs/flow-review.md` (the lead supplies the path). Map
+  entry points from real routes/actions, write the flow doc and standalone clickable HTML,
+  and link affected tickets with `Flow:`. These planning artifacts are within your writing
+  scope; they are not feature code. Include removed/redirected accesses and negative criteria.
+  Review coherence and business logic while preparing the HTML: conflicting actions/copy,
+  missing prerequisites, dead ends and inconsistent states. `DESIGN.md` is not a flow approval.
+  Only when the lead supplies `WF: requested` ("prueba con WF" / `--wf`), append ONE final
+  `[WF]` ticket using the guide: `Kind: flow-review`, `Type: logic`, `QA: video`, `Flow:` and
+  `Depends on:` every implementation/setup ticket. Explain the journey, logic checks, expected
+  outcome and video/HTML/report attachments on its own Trello card. Keep it last, outside chains.
+  Missing auth/test/video setup then becomes preceding implementation work, using the existing
+  runner and local Supabase recipe; no repeated email/password requests. With WF off, do not add
+  that ticket or bootstrap a recording suite just because the change affects UI.
 
 ## Output — a PM has to understand the ticket without opening the code
 Write each ticket in `squad.md`'s tickets path (`<tickets-path>/<slug>.md`) copying

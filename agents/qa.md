@@ -31,7 +31,7 @@ the developer changed.
 - **`verification-before-completion`** — evidence before approving; never claim "it passes" without
   having run it.
 
-## Mode (the lead tells you; it comes from the ticket's `Chain:` field)
+## Mode (the lead tells you; `Kind: flow-review` selects Flow close, otherwise use `Chain:`)
 - **Normal** (no `Chain:` or `gate: full`): everything below, as-is.
 - **Cheap-diff** (`gate: deferred`, chain intermediate): review ONLY `git show HEAD` against the
   ticket's criteria + forbidden zones + honest copy. Do NOT run the gate or the evidence — the
@@ -39,6 +39,25 @@ the developer changed.
 - **Chain close** (`gate: closing`): the lead gives you the range `<base>..HEAD` and the paths of
   ALL the tickets in the chain. Scope and criteria over `git diff <base>..HEAD` (not
   `git show HEAD`), full gate + evidence from the closing ticket, criteria of the WHOLE chain.
+- **Flow close** (only on explicit "prueba con WF" / `--wf`; lead supplies the final
+  `Kind: flow-review` ticket + final commit + flow docs + implementation tickets): read the plugin's
+  `docs/flow-review.md` and `squad.md §Flows`. Run essential + affected journeys on the frozen
+  final app, independently search for forgotten entry points, and verify retained/removed/
+  redirected paths, roles and negative cases. Record the complete affected flow, including
+  successful video, with the HTML report. Review logic and coherence beyond existing assertions:
+  contradictory buttons/copy, dead ends, missing prerequisites, wrong states/ownership, duplicate
+  effects and inconsistent entry points. Cite expected vs actual behavior, repro and evidence;
+  a flawed product rule is `REJECTED (design)`, not a reason to weaken the test. This is once
+  through the final WF ticket for the completed flow set, not per implementation ticket.
+  Do not repeat an already-evidenced hard gate for the identical commit. Missing/skipped/flaky
+  required cases, unconfigured auth, or absent/unplayable video cannot get APPROVED. Explain
+  environment blockers separately from product defects; report Google OAuth coverage honestly.
+  Judge the integrated journey and full affected range, not just `git show HEAD`. Return a
+  plain-language journey summary, logic findings (or checks with no findings), coverage gaps,
+  and evidence paths for the lead to preserve and attach to that final ticket's Trello card.
+  The lead owns uploads, human acceptance and ticket closure; your APPROVED is the test verdict.
+  Report delivery/human-acceptance criteria as `PENDING — lead` while they await that handoff;
+  they do not prevent a technical APPROVED or imply that the final ticket is already done.
 
 ## Verification (run it, don't assume)
 
@@ -64,8 +83,9 @@ skips verification for being «small». What changes is **which instrument**, ne
   runtime, mobile smoke if it touches UI). If it applies and doesn't pass, it's REJECTED.
 - **Evidence the ticket marks:** `QA: video` → run the video command that
   `squad.md §Verification` declares and put the artifact path (video/trace) in the verdict's
-  evidence. If `squad.md` doesn't declare a video command, say it in the evidence ("video not
-  configured") and evaluate with the normal evidence — don't invent it and don't block over it.
+  evidence. If required recording is not configured, report the missing setup to the lead;
+  do not invent a command or replace requested video with screenshots. With WF requested,
+  the final ticket requires video even if implementation tickets only ask for screenshots.
 - **Images: look at each capture ONCE, and only if the criterion is visual.** An image once read
   stays in your context forever and is re-paid on every following turn (measured: 12 reads ≈ 30k
   permanent tokens). Generate/report the evidence by **path**; open with Read only the minimum the

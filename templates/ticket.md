@@ -36,6 +36,12 @@ essentials — long research or extensive design goes in a separate doc, linked.
 <!-- Type: exactly ONE — the lead copies it to the BOARD's Theme column and it becomes the card's
 colored tag in Trello, next to the project tag. -->
 <!-- Only if applicable, one line each: -->
+- Flow: <ID + flow doc/HTML path; entry-point decisions and tests live there>
+- Kind: flow-review
+- Depends on: <implementation/setup/repair ticket slugs>
+<!-- Kind: flow-review ONLY for the single final ticket explicitly requested with "prueba con WF"
+or --wf. Type: logic, QA: video; no Chain field. Explain the journey and logic checks above;
+require its own Trello card to carry the video, approved HTML and report. @qa owns this ticket. -->
 - Assumption: <what you assumed in the face of ambiguity, and why>
 - Risk: high
 - Chain: <name> · N/M · gate: deferred|closing|full
