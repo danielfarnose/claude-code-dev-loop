@@ -81,14 +81,47 @@ codex plugin marketplace add danielfarnose/claude-code-dev-loop
 codex plugin add squad@squad
 ```
 
-### 2. Onboard a repository once
+### 2. Optional: configure Trello sync
+
+**You do not need an `.env` file to use squad.** Both Claude Code and Codex run the core
+workflow with no credentials. Create one only when you want squad to mirror `BOARD.md` to Trello.
+
+Use the file for the host you installed:
+
+```bash
+# Codex
+cp .env.example ~/.codex/squad.env
+
+# Claude Code
+cp .env.example ~/.claude/squad.env
+```
+
+Open that file and fill in only these values:
+
+```dotenv
+TRELLO_KEY=your_trello_api_key
+TRELLO_TOKEN=your_trello_token
+```
+
+Get both from [Trello Power-Ups administration](https://trello.com/power-ups/admin): select your
+Power-Up, open its **API Key** tab, then create a token from the **Token** link next to the key.
+Do **not** put Trello's `Secret` in this file; it is for OAuth and squad does not use it.
+
+Keep `squad.env` outside the plugin and outside your project. Plugin updates replace the installed
+plugin directory, and secrets should not be committed. Environment variables set in your shell take
+precedence if you need to use a different file via `SQUAD_ENV_FILE`.
+
+Codex needs no OpenRouter key: it uses native Codex subagents. `OPENROUTER_API_KEY` and
+`OPENROUTER_MODEL` in `.env.example` are optional and apply only to Claude Code.
+
+### 3. Onboard a repository once
 
 Ask for the `inspect-project` skill — or just launch your first task: a repository without
 `.claude/squad.md` routes to `R5_NEW_PROJECT`, which runs it for you and stops at a checkpoint.
 It reads the repository and drafts `.claude/squad.md`. Review that file and confirm the
 verification command: this is the gate both developer and QA will trust.
 
-### 3. Give squad a real outcome
+### 4. Give squad a real outcome
 
 Claude Code:
 
