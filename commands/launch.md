@@ -27,6 +27,11 @@ Caveman mode. This is the standardized launch process written after the first pr
    the result gets recorded (`docs/legal/data-map.md`, the checklist).
 5. **Legal rows (section A)** are never ticked by the audit: read the project's
    `docs/legal/compliance-backlog.md` (or say it is missing) and report their state from it.
+   **No legal texts in the project yet** (no Legal Notice / Privacy / Terms / Guidelines pages, or
+   no backlog) → launch `@legal` (agents/legal.md) first: it reads `templates/legal/*` and the
+   project's `.claude/squad.md`, asks the operator the identity/stack/product questions it cannot
+   answer from the repo, and writes the four texts + the compliance backlog skeleton into the
+   project. Only then continue with the audit. Never publish a `{{…}}` placeholder.
 
 Rules: never invent a ✅ the script did not print; never tick an **operator** row yourself; the
 checklist file is the truth for the launch, the playbook is the why.

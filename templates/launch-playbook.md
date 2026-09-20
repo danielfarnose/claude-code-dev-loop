@@ -71,6 +71,12 @@ responsable.
 Los cuatro públicos se escriben en el idioma del producto (LOVEEXE: inglés; resumen en español antes
 de cualquier campaña en España). Cada uno lleva fecha y, los Términos, versión.
 
+**No se escriben de cero:** el plugin squad lleva los cuatro textos revisados como plantillas con
+variables (`templates/legal/*.md`, sin datos de nadie) y un agente `@legal` que, cuando un proyecto
+va a producción, lee esas plantillas y el `squad.md` del proyecto, pregunta al operador lo que no
+puede saber (identidad, país, proveedores, qué se publica, si se cobra) y escribe los textos en el
+proyecto. `/squad:launch` lo lanza solo si el proyecto no tiene textos legales.
+
 ### 1.3 Lo que la app tiene que HACER (decirlo no basta)
 
 - **Consentimiento**: 18+ y aceptación de Términos (con versión) en el **primer acto social**, no
