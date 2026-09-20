@@ -26,6 +26,8 @@ lawyer before charging money.
 | `{{STORAGE_KEY}}` / `{{STORAGE_KEY_BYOK}}` | the app's localStorage / sessionStorage keys named in the cookies section | `acme:v1` |
 | `{{LAST_UPDATED}}` / `{{TERMS_VERSION}}` | the date shown / the Terms version the consent record stores | `March 3, 2027` / `2027-03-03` |
 
+Legal form: the example operator is a **natural person** («a natural person acting in his own name», no company registration); a company rewrites that sentence with its registered name, registry and number — and the Terms/Privacy pronouns to match.
+
 Names left as in the example and to be edited by hand: the sign-in provider (**Google**) and the
 bring-your-own-key providers (**OpenAI, Anthropic, Gemini**) — delete those paragraphs if the
 product has no BYOK.
