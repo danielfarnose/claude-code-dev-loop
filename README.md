@@ -553,6 +553,62 @@ them into its own installation directory.
   (security is red on every board), so the board is scannable by kind of work at a glance. Configured per project via a
   `Trello: board <id>` line in `squad.md`; without it there is no sync and the loop skips it.
 
+## Going live — `/squad:launch` in three steps
+
+You have a project that works and you want it on a real domain without forgetting the legal texts,
+the headers, the sitemap or the 404. Squad turns that into one command and one checklist. Written
+after the first production launch (September 2026): the first time took two weeks, most of it
+finding out **what was missing and in which order**.
+
+**Step 1 — audit the live site and get the checklist.** Deploy first (Cloudflare Pages, Vercel,
+whatever), then inside Claude Code, in the project:
+
+```text
+/squad:launch https://your-domain.com
+```
+
+It copies the checklist to `docs/launch/checklist.md`, runs a ~10-second `curl` audit (https and
+www redirects, security headers, robots + sitemap, real 404, title/description/canonical, Open
+Graph image, JSON-LD, favicon, page weight, third-party scripts, external links), ticks what it can
+prove and prints two lists: **what an agent can fix now** (say «fix them» and the normal loop does
+it) and **what only you can do** (accept provider DPAs, the www → root Redirect Rule, submit the
+sitemap in Search Console, set Google Auth to production, the smoke test). Run the same command
+again after every deploy; it only re-ticks the automatic rows.
+
+**Step 2 — the four legal texts.** If the project has no Legal Notice / Privacy Policy / Terms /
+Community Guidelines, the command launches `@legal` by itself; to run it alone, paste:
+
+```text
+Use the legal agent: write the legal texts for this project.
+```
+
+It reads the repo (sign-in, database, hosting, AI, storage keys, report button, delete-account
+path…), asks you **only what the code cannot know** — who you are, which country, free or paid,
+18+ or not, what users publish and under which name, how you really moderate — and writes
+`docs/legal/legal-notice.md`, `privacy-policy.md`, `terms-of-use.md`, `community-guidelines.md`,
+your answers in `docs/legal/legal-answers.json` (so a stack change is a re-render, not a rewrite)
+and a compliance backlog with every promise the texts make that the code does not keep yet. Your
+identity data stays in your repo; the plugin's templates (`templates/legal/`) carry no product and
+nobody's data. Not legal advice: a licensed lawyer before charging money.
+
+**Step 3 — do your rows, tell squad.** Close the operator rows in the checklist and say so («sitemap
+submitted, DPA accepted on 2026-10-01»): the row gets ticked with the date. When every row is ✅ or
+justified, you are live. The long version of the why — the order that worked, the Cloudflare /
+Supabase / Google traps, the lawyer-style review, the smoke-test script — is
+`templates/launch-playbook.md` (Spanish).
+
+Without Claude Code, the same two tools run from a clone of this repo:
+
+```bash
+git clone https://github.com/danielfarnose/claude-code-dev-loop squad && cd squad
+bash scripts/launch-audit.sh https://your-domain.com
+cp templates/legal/answers.example.json legal-answers.json   # edit flags + vars for your product
+node scripts/legal-render.mjs templates/legal/privacy-policy.md legal-answers.json > privacy-policy.md
+```
+
+The rendered file still contains `[[WRITE: …]]` sentences: those are the ones only you can write,
+with your product's own words. Nothing goes live while `grep -rn "\[\[WRITE" .` finds anything.
+
 ## Design rules (so it doesn't rot)
 
 - **Precedence:** in Claude, a local `.claude/agents/<role>.md` overrides the plugin role. In Codex,
@@ -657,16 +713,3 @@ especially rejections and failure cases — are the most useful feedback.
 ## License
 
 [MIT](LICENSE)
-
-## /squad:launch — the go-live process
-
-Written after the first production launch (September 2026) so the next project does not
-spend two weeks rediscovering the order. `/squad:launch https://your-domain` copies
-`templates/launch-checklist.md` into `docs/launch/checklist.md`, runs `scripts/launch-audit.sh`
-(https/www redirects, security headers, robots + sitemap, real 404, title/description/canonical,
-Open Graph + image, JSON-LD, favicon, weight, third parties, external links — ~10 s of curl),
-ticks what it can prove and lists what only the operator can close (provider DPAs, Redirect Rule,
-Search Console, Google Auth Audience, smoke test). The legal half (identity, four public texts,
-five internal procedures, consent/deletion/retention/moderation in code, assisted lawyer review) is
-explained in `templates/launch-playbook.md`; it is checked from the project's compliance backlog,
-never auto-ticked.
