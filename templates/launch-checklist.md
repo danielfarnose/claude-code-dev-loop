@@ -2,7 +2,7 @@
 
 Copied by `/squad:launch` into `docs/launch/checklist.md`. Tick with a date; `/squad:launch <url>`
 re-runs the automatic rows. The why of every row: `templates/launch-playbook.md` in the squad
-plugin (written after the first launch, LOVEEXE 2026-09-20). Rows marked **operator** cannot be
+plugin (written after the first launch, 2026-09-20). Rows marked **operator** cannot be
 done by an agent.
 
 ## A · Legal (before the first real user — login = personal data)

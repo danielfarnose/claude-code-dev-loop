@@ -3,8 +3,8 @@
 # templates/launch-checklist.md, in ~10 s of curl. Prints ✅ / ⚠️ / ❌ per
 # item; the rows it cannot check (DPAs, Search Console, Google Audience,
 # smoke test) are listed at the end for the operator. Exit code is always 0:
-# this is a report, not a gate. Written after the first go-live (LOVEEXE,
-# 2026-09-20); the long explanation is templates/launch-playbook.md.
+# this is a report, not a gate. Written after the first go-live (2026-09-20);
+# the long explanation is templates/launch-playbook.md.
 set -u
 url="${1:?usage: launch-audit.sh https://your-domain}"
 url="${url%/}"; host="${url#https://}"; host="${host#http://}"

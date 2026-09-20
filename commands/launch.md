@@ -8,7 +8,7 @@ Run the go-live process on:
 $ARGUMENTS
 
 Caveman mode. This is the standardized launch process written after the first production launch
-(LOVEEXE, 2026-09-20) so the next project does not rediscover the order. The long explanation is
+(2026-09-20) so the next project does not rediscover the order. The long explanation is
 `${CLAUDE_PLUGIN_ROOT}/templates/launch-playbook.md` — read it once per project, not per run.
 
 1. **Checklist in the repo.** If `docs/launch/checklist.md` does not exist, copy
