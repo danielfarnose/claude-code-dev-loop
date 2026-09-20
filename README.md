@@ -657,3 +657,16 @@ especially rejections and failure cases — are the most useful feedback.
 ## License
 
 [MIT](LICENSE)
+
+## /squad:launch — the go-live process
+
+Written after the first production launch (LOVEEXE, September 2026) so the next project does not
+spend two weeks rediscovering the order. `/squad:launch https://your-domain` copies
+`templates/launch-checklist.md` into `docs/launch/checklist.md`, runs `scripts/launch-audit.sh`
+(https/www redirects, security headers, robots + sitemap, real 404, title/description/canonical,
+Open Graph + image, JSON-LD, favicon, weight, third parties, external links — ~10 s of curl),
+ticks what it can prove and lists what only the operator can close (provider DPAs, Redirect Rule,
+Search Console, Google Auth Audience, smoke test). The legal half (identity, four public texts,
+five internal procedures, consent/deletion/retention/moderation in code, assisted lawyer review) is
+explained in `templates/launch-playbook.md`; it is checked from the project's compliance backlog,
+never auto-ticked.
