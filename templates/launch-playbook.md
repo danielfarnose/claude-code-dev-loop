@@ -71,11 +71,13 @@ responsable.
 Los cuatro públicos se escriben en el idioma del producto (LOVEEXE: inglés; resumen en español antes
 de cualquier campaña en España). Cada uno lleva fecha y, los Términos, versión.
 
-**No se escriben de cero:** el plugin squad lleva los cuatro textos revisados como plantillas con
-variables (`templates/legal/*.md`, sin datos de nadie) y un agente `@legal` que, cuando un proyecto
-va a producción, lee esas plantillas y el `squad.md` del proyecto, pregunta al operador lo que no
-puede saber (identidad, país, proveedores, qué se publica, si se cobra) y escribe los textos en el
-proyecto. `/squad:launch` lo lanza solo si el proyecto no tiene textos legales.
+**No se escriben de cero:** el plugin squad lleva plantillas genéricas de los cuatro textos
+(`templates/legal/*.md`: sin producto ni datos de nadie — variables, bloques `IF` por stack y frases
+`[[WRITE]]` que se redactan con los sustantivos del proyecto; `scripts/legal-render.mjs` las renderiza)
+y un agente `@legal` que, cuando un proyecto va a producción, lee el `squad.md` del proyecto, saca del
+repo lo que el código ya dice, pregunta al operador el resto (identidad, país, proveedores, qué se
+publica, si se cobra) y escribe los textos en el proyecto. `/squad:launch` lo lanza solo si el
+proyecto no tiene textos legales.
 
 ### 1.3 Lo que la app tiene que HACER (decirlo no basta)
 
@@ -263,5 +265,6 @@ Lo que costó tiempo no fue hacer cada cosa, fue **saber qué faltaba y en qué 
   Audience, smoke test), con el enlace a esta guía para el porqué.
 
 Lo que **no** se automatiza y hay que hacer a mano en cada proyecto: las decisiones de §1.1, los
-textos (se parte de los de LOVEEXE como plantilla, no de cero), la revisión asistida de abogado, y
+textos (se renderizan de las plantillas genéricas del plugin y se redactan las frases `[[WRITE]]`,
+no de cero), la revisión asistida de abogado, y
 el smoke test.

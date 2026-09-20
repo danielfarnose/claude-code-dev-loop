@@ -660,7 +660,7 @@ especially rejections and failure cases — are the most useful feedback.
 
 ## /squad:launch — the go-live process
 
-Written after the first production launch (LOVEEXE, September 2026) so the next project does not
+Written after the first production launch (September 2026) so the next project does not
 spend two weeks rediscovering the order. `/squad:launch https://your-domain` copies
 `templates/launch-checklist.md` into `docs/launch/checklist.md`, runs `scripts/launch-audit.sh`
 (https/www redirects, security headers, robots + sitemap, real 404, title/description/canonical,
