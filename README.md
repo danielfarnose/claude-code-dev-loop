@@ -635,13 +635,17 @@ squad/
 │   ├── architect.md
 │   ├── developer.md
 │   ├── qa.md
-│   └── security.md     # manual auditor, outside the loop
+│   ├── security.md     # manual auditor, outside the loop
+│   └── legal.md        # @legal — renders the legal templates for THIS project, asks only what the repo cannot answer
 ├── commands/
 │   ├── run.md           # /squad:run — the ONLY loop trigger (routing + resume | status)
 │   ├── patrol.md        # /squad:patrol — bug hunt → tickets → auto-fix P1
-│   └── board.md         # /squad:board — one-way Trello mirror of the BOARD (optional)
+│   ├── board.md         # /squad:board — one-way Trello mirror of the BOARD (optional)
+│   └── launch.md        # /squad:launch — go-live checklist + audit; runs @legal when no legal texts
 ├── scripts/
 │   ├── agent-or.sh            # @developer and @qa over OpenRouter (--check before the first agent)
+│   ├── launch-audit.sh        # ~10 s curl audit of a live domain (headers, robots, 404, meta, OG, favicon, weight)
+│   ├── legal-render.mjs       # render a legal template from legal-answers.json (--check self-test)
 │   ├── trello-sync.mjs        # push BOARD.md → Trello (node, zero deps; --dry-run = check)
 │   ├── trello-attach.mjs      # upload @qa evidence to the card (idempotent by name)
 │   ├── worktree.sh            # serial per-run worktree (new|review|list|merge|clean, cap 1)
@@ -655,7 +659,10 @@ squad/
 │   └── inspect-project/       # shared onboarding
 ├── templates/
 │   ├── squad.md         # the per-project contract template
-│   └── ticket.md        # ticket template (product first, <60s, 3-5 criteria)
+│   ├── ticket.md        # ticket template (product first, <60s, 3-5 criteria)
+│   ├── launch-checklist.md    # go-live checklist copied into the project by /squad:launch
+│   ├── launch-playbook.md     # the long why: order, traps, lawyer-style review, smoke test (Spanish)
+│   └── legal/                 # generic Legal Notice · Privacy · Terms · Guidelines ({{VARS}}, IF blocks, [[WRITE]])
 ├── docs/
 │   └── flow-review.md   # HTML, entry points, local Supabase sessions and flow video
 └── examples/            # what a run leaves behind: a board and one rejected ticket
