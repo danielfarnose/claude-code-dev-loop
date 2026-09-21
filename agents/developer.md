@@ -27,6 +27,8 @@ Implement every mapped entry-point decision, including removals/redirects. Keep 
 aligned with the approved behavior; never weaken them to match a regression. Set up automatic
 test authentication and successful-flow video in the target app when the ticket calls for it.
 Use normal Supabase user sessions and real RLS; admin keys stay in isolated test setup only.
+Scripts that talk to a hosted app as a logged-in user accept `QA_ACCESS_TOKEN` (optional; anonymous
+when absent) so QA can run them with `sbauth <project> token` — never hard-code a session.
 Record actual commands in `squad.md §Flows` once; never overwrite symlinked `.env*` files.
 
 **Code graph before exploring blind.** If `squad.md §Navigation` declares the indexed project name,

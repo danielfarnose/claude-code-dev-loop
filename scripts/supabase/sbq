@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# sbq — ejecuta SQL en un proyecto Supabase vía Management API (mismo endpoint que el SQL Editor).
+#
+#   sbq <project> "<sql>"                  # query inline
+#   sbq <project> -f <fichero.sql>         # ejecuta un fichero (p. ej. una migración)
+#   echo "select 1" | sbq <project> -      # SQL por stdin
+#   sbq <project> --tables                 # lista tablas de public
+#   sbq --projects                         # proyectos configurados
+#
+# Config: ~/.config/supabase/sbq.env (chmod 600)
+#   SUPABASE_ACCESS_TOKEN=sbp_...  (o SUPABASE_PAT)  # Personal Access Token (Supabase → Account → Access Tokens)
+#   SBQ_REF_love_app=nrmcoyiqnjsagxflacub  # un SBQ_REF_<project> por proyecto (guiones → guion bajo)
+#
+# Salida: JSON (array de filas) o `ok` si no devuelve filas. Errores de Postgres salen por stderr y exit 1.
+set -euo pipefail
+
+CONF="${SBQ_CONFIG:-$HOME/.config/supabase/sbq.env}"
+if [ ! -f "$CONF" ]; then
+  echo "sbq: falta $CONF (SUPABASE_PAT=... y SBQ_REF_<project>=...)" >&2
+  exit 2
+fi
+# shellcheck disable=SC1090
+set -a; . "$CONF"; set +a
+
+if [ "${1:-}" = "--projects" ]; then
+  env | grep '^SBQ_REF_' | sed 's/^SBQ_REF_//; s/=/ → /; s/_/-/g' | sed 's/ → \(.*\)$/ → \1/'
+  exit 0
+fi
+
+PROJECT="${1:?uso: sbq <project> \"<sql>\" | -f fichero.sql | - | --tables}"
+shift
+KEY="SBQ_REF_${PROJECT//-/_}"
+REF="${!KEY:-}"
+[ -n "$REF" ] || { echo "sbq: proyecto '$PROJECT' no configurado en $CONF (falta $KEY)" >&2; exit 2; }
+SUPABASE_PAT="${SUPABASE_PAT:-${SUPABASE_ACCESS_TOKEN:-}}"
+[ -n "$SUPABASE_PAT" ] || { echo "sbq: falta SUPABASE_ACCESS_TOKEN (o SUPABASE_PAT) en $CONF" >&2; exit 2; }
+
+case "${1:-}" in
+  -f) SQL=$(cat "${2:?falta fichero}") ; LABEL="$2" ;;
+  -)  SQL=$(cat) ; LABEL="stdin" ;;
+  --tables) SQL="select table_name from information_schema.tables where table_schema='public' order by 1" ; LABEL="tables" ;;
+  "") echo "sbq: falta el SQL" >&2; exit 2 ;;
+  *)  SQL="$*" ; LABEL="inline" ;;
+esac
+
+# Registro de auditoría (qué se ejecutó, cuándo, contra qué proyecto)
+LOGDIR="$HOME/.config/supabase/log"; mkdir -p "$LOGDIR"
+printf '%s project=%s ref=%s src=%s\n%s\n---\n' "$(date -Is)" "$PROJECT" "$REF" "$LABEL" "$SQL" >> "$LOGDIR/$PROJECT.log"
+
+BODY=$(python3 -c 'import json,sys; print(json.dumps({"query": sys.stdin.read()}))' <<< "$SQL")
+RESP=$(curl -sS -w '\n%{http_code}' -X POST "https://api.supabase.com/v1/projects/$REF/database/query" \
+  -H "Authorization: Bearer $SUPABASE_PAT" -H "Content-Type: application/json" --data-binary "$BODY")
+CODE="${RESP##*$'\n'}"; JSON="${RESP%$'\n'*}"
+
+if [ "$CODE" != "200" ] && [ "$CODE" != "201" ]; then
+  echo "sbq: HTTP $CODE" >&2
+  python3 -c 'import json,sys
+try:
+    d=json.load(sys.stdin); print(d.get("message") or d.get("error") or d, file=sys.stderr)
+except Exception: print(sys.stdin.read(), file=sys.stderr)' <<< "$JSON" || true
+  exit 1
+fi
+
+python3 -c 'import json,sys
+d=json.load(sys.stdin)
+if isinstance(d,list) and not d: print("ok")
+else: print(json.dumps(d, ensure_ascii=False, indent=2))' <<< "$JSON"

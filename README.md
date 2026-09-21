@@ -307,6 +307,12 @@ without asking the human for an email/password each run; keep real RLS and role 
 Google OAuth itself separately when a real authorized account is available. Record that
 coverage separately so a post-login journey never claims to have verified Google login.
 
+When the app runs against a **hosted** Supabase project (evals against production edge functions,
+staging, a shared preview), use the bundled QA login instead: `scripts/supabase/sbauth` keeps one
+email+password QA user per project next to the humans' Google login and prints a fresh JWT with
+`sbauth <project> token`; tests read it from `QA_ACCESS_TOKEN`. Agents never ask the human for a
+session. See [`scripts/supabase/README.md`](scripts/supabase/README.md).
+
 The target app declares its real startup, auth/seed, test and artifact paths in `squad.md §Flows`.
 At its first requested WF test, missing setup becomes a preceding implementation ticket, once.
 Prefer native app/Playwright execution; only local Supabase needs its container

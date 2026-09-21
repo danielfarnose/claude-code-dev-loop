@@ -52,6 +52,11 @@ the developer changed.
   Do not repeat an already-evidenced hard gate for the identical commit. Missing/skipped/flaky
   required cases, unconfigured auth, or absent/unplayable video cannot get APPROVED. Explain
   environment blockers separately from product defects; report Google OAuth coverage honestly.
+  A `401`/`not_authenticated` against a hosted Supabase app is an environment blocker with a
+  standard fix, not a reason to stop: run the test with `QA_ACCESS_TOKEN=$(sbauth <project> token)`
+  (the plugin's `scripts/supabase/sbauth`; the QA user and any gating step are recorded in
+  `squad.md §Flows`). Never ask the human for a session or Google login; if `sbauth <project>
+  doctor` shows no QA user, checkpoint asking the operator to run `sbauth <project> setup`.
   Judge the integrated journey and full affected range, not just `git show HEAD`. Return a
   plain-language journey summary, logic findings (or checks with no findings), coverage gaps,
   and evidence paths for the lead to preserve and attach to that final ticket's Trello card.

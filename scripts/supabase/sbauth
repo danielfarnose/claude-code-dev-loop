@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# sbauth — usuario QA por proyecto Supabase para que los agentes (Squad @qa, evals) actúen
+# como un jugador logueado sin que Daniel tenga que iniciar sesión con Google.
+#
+#   sbauth <project> setup [email]        # una vez: crea el usuario QA (SQL vía sbq, password aleatoria, confirmado)
+#   sbauth <project> token                # login por password → imprime un access token (JWT) fresco
+#   sbauth <project> rpc <fn> ['<json>']  # llama a una RPC de PostgREST como el usuario QA
+#   sbauth <project> whoami               # id + email del usuario QA según el token
+#   sbauth <project> doctor               # comprueba sbq, key pública y proveedor Email
+#   sbauth --projects                     # usuarios QA configurados
+#
+# Solo necesita lo que ya tiene sbq (PAT con scope de SQL) y la key PÚBLICA del proyecto:
+#   ~/.config/supabase/sbq.env        SUPABASE_ACCESS_TOKEN + SBQ_REF_<project>
+#   ~/.config/supabase/qa-users.env   (chmod 600) por proyecto:
+#     SBAUTH_<project>_ANON_KEY=sb_publishable_… | eyJ…   (si falta, se lee de ~/projects/<project>/.env.local)
+#     SBAUTH_<project>_EMAIL / _PASSWORD / _USER_ID       (los escribe setup)
+#
+# Uso típico en un eval:  QA_ACCESS_TOKEN=$(sbauth love-app token) node scripts/comic-eval.mjs
+# Google login sigue siendo el de los humanos; el proveedor Email (activado por defecto en Supabase)
+# solo lo usa este usuario. Si estuviera apagado, `doctor` lo dice: Authentication → Providers → Email.
+set -euo pipefail
+
+CONF="${SBQ_CONFIG:-$HOME/.config/supabase/sbq.env}"
+QACONF="${SBAUTH_CONFIG:-$HOME/.config/supabase/qa-users.env}"
+PROJECTS_DIR="${SBAUTH_PROJECTS_DIR:-$HOME/projects}"
+[ -f "$CONF" ] || { echo "sbauth: falta $CONF (misma config que sbq)" >&2; exit 2; }
+set -a; . "$CONF"; [ -f "$QACONF" ] && . "$QACONF"; set +a
+# sbq: el de PATH o el hermano en este mismo directorio (instalación como plugin).
+if ! command -v sbq >/dev/null; then
+  HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  [ -x "$HERE/sbq" ] && sbq() { "$HERE/sbq" "$@"; } || { echo "sbauth: falta sbq (PATH o $HERE/sbq)" >&2; exit 2; }
+fi
+
+if [ "${1:-}" = "--projects" ]; then
+  env | grep '^SBAUTH_.*_EMAIL=' | sed 's/^SBAUTH_//; s/_EMAIL=/ → /; s/_/-/g'
+  exit 0
+fi
+
+PROJECT="${1:?uso: sbauth <project> setup|token|rpc|whoami|doctor}"; shift
+CMD="${1:?uso: sbauth <project> setup|token|rpc|whoami|doctor}"; shift
+P="${PROJECT//-/_}"
+REFKEY="SBQ_REF_$P"; REF="${!REFKEY:-}"
+[ -n "$REF" ] || { echo "sbauth: proyecto '$PROJECT' no está en $CONF (falta $REFKEY)" >&2; exit 2; }
+AUTH="https://$REF.supabase.co/auth/v1"
+REST="https://$REF.supabase.co/rest/v1"
+
+EMAILKEY="SBAUTH_${P}_EMAIL"; PASSKEY="SBAUTH_${P}_PASSWORD"; IDKEY="SBAUTH_${P}_USER_ID"; ANONKEY="SBAUTH_${P}_ANON_KEY"
+QA_EMAIL="${!EMAILKEY:-}"; QA_PASS="${!PASSKEY:-}"; QA_ID="${!IDKEY:-}"
+
+jget() { python3 -c 'import json,sys; d=json.load(sys.stdin); print(eval(sys.argv[1]))' "$1"; }
+sqlstr() { python3 -c "import sys; print(\"'\" + sys.argv[1].replace(\"'\", \"''\") + \"'\")" "$1"; }  # literal SQL seguro
+
+# Key pública (anon / publishable): del env o del .env.local del proyecto. Es pública, no es secreto.
+anon_key() {
+  local k="${!ANONKEY:-}"
+  if [ -z "$k" ]; then
+    local envf="$PROJECTS_DIR/$PROJECT/.env.local"
+    [ -f "$envf" ] && k=$(grep -E '^(VITE_|NEXT_PUBLIC_|PUBLIC_)?SUPABASE_(PUBLISHABLE|ANON)_KEY=' "$envf" | head -1 | cut -d= -f2- | tr -d '"'"'" || true)
+  fi
+  [ -n "$k" ] || { echo "sbauth: no encuentro la key pública de '$PROJECT'; pon $ANONKEY=… en $QACONF" >&2; exit 2; }
+  printf '%s' "$k"
+}
+
+need_user() { [ -n "$QA_EMAIL" ] && [ -n "$QA_PASS" ] || { echo "sbauth: '$PROJECT' sin usuario QA; ejecuta: sbauth $PROJECT setup" >&2; exit 2; }; }
+
+# Login por password. Devuelve el JSON completo de GoTrue; explica los fallos típicos.
+login_raw() {
+  local anon; anon=$(anon_key)
+  local body; body=$(python3 -c 'import json,sys; print(json.dumps({"email":sys.argv[1],"password":sys.argv[2]}))' "$1" "$2")
+  curl -sS -X POST "$AUTH/token?grant_type=password" -H "apikey: $anon" -H "Content-Type: application/json" --data-binary "$body"
+}
+get_token() {
+  need_user
+  local resp; resp=$(login_raw "$QA_EMAIL" "$QA_PASS")
+  local tok; tok=$(jget 'd.get("access_token","")' <<< "$resp")
+  [ -n "$tok" ] || { echo "sbauth: login fallido: $(jget 'd.get("msg") or d.get("error_description") or d.get("error_code") or d' <<< "$resp")" >&2; exit 1; }
+  printf '%s' "$tok"
+}
+
+case "$CMD" in
+  doctor)
+    printf 'sbq (SQL vía PAT):      '; sbq "$PROJECT" "select 1" > /dev/null && echo ok
+    printf 'key pública:            '; anon_key > /dev/null && echo "ok ($(anon_key | cut -c1-14)…)"
+    printf 'proveedor Email:        '
+    RESP=$(login_raw "doctor-$RANDOM@example.invalid" "x") ; MSG=$(jget 'd.get("msg") or d.get("error_description") or d.get("error_code") or ""' <<< "$RESP")
+    case "$MSG" in
+      *isabled*) echo "APAGADO → panel: Authentication → Sign In / Providers → Email → Enable" ;;
+      *) echo "activo (respuesta a login falso: ${MSG:-?})" ;;
+    esac
+    printf 'usuario QA:             '; [ -n "$QA_EMAIL" ] && echo "$QA_EMAIL (id ${QA_ID:-?})" || echo "ninguno → sbauth $PROJECT setup"
+    ;;
+  setup)
+    [ -z "$QA_EMAIL" ] || { echo "sbauth: '$PROJECT' ya tiene usuario QA ($QA_EMAIL, id $QA_ID). Borra su terna de $QACONF para recrearlo." >&2; exit 1; }
+    anon_key > /dev/null
+    EMAIL="${1:-qa-squad+$PROJECT@robettolabs.com}"
+    PASS=$(python3 -c 'import secrets; print(secrets.token_urlsafe(24))')
+    # Usuario confirmado + identidad email, creados por SQL (mismo shape que crea GoTrue).
+    # Los tokens vacíos ('' y no NULL) evitan errores de scan en GoTrue.
+    SQL="with u as (
+      insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+        raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+        confirmation_token, recovery_token, email_change_token_new, email_change, email_change_token_current, phone_change, phone_change_token, reauthentication_token)
+      values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated',
+        $(sqlstr "$EMAIL")::text, extensions.crypt($(sqlstr "$PASS")::text, extensions.gen_salt('bf')), now(),
+        '{\"provider\":\"email\",\"providers\":[\"email\"]}'::jsonb, '{\"squad_qa\":true}'::jsonb, now(), now(),
+        '', '', '', '', '', '', '', '')
+      returning id, email)
+    insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+    select gen_random_uuid(), u.id, u.id::text,
+      jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true, 'phone_verified', false),
+      'email', now(), now(), now() from u
+    returning user_id;"
+    UID_=$(sbq "$PROJECT" "$SQL" | jget 'd[0]["user_id"]')
+    touch "$QACONF"; chmod 600 "$QACONF"
+    printf '\n# %s — usuario QA creado por sbauth %s\nSBAUTH_%s_EMAIL=%s\nSBAUTH_%s_PASSWORD=%s\nSBAUTH_%s_USER_ID=%s\n' \
+      "$PROJECT" "$(date -I)" "$P" "$EMAIL" "$P" "$PASS" "$P" "$UID_" >> "$QACONF"
+    QA_EMAIL="$EMAIL"; QA_PASS="$PASS"; QA_ID="$UID_"
+    get_token > /dev/null && echo "ok: usuario QA de $PROJECT = $EMAIL (id $UID_); login verificado. Token: sbauth $PROJECT token"
+    ;;
+  token)
+    get_token; echo
+    ;;
+  whoami)
+    TOKEN=$(get_token); ANON=$(anon_key)
+    curl -sS -f "$AUTH/user" -H "apikey: $ANON" -H "Authorization: Bearer $TOKEN" | jget 'json.dumps({"id":d["id"],"email":d["email"]})'
+    ;;
+  rpc)
+    FN="${1:?uso: sbauth <project> rpc <fn> ['<json>']}"; ARGS="${2:-{\}}"
+    TOKEN=$(get_token); ANON=$(anon_key)
+    curl -sS -X POST "$REST/rpc/$FN" -H "apikey: $ANON" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" --data-binary "$ARGS"
+    echo
+    ;;
+  *) echo "sbauth: comando '$CMD' desconocido (setup|token|rpc|whoami|doctor)" >&2; exit 2 ;;
+esac

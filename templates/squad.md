@@ -61,6 +61,9 @@ Exact existing commands: start test app · seed/auth setup · essential flows ·
 Test app URL + isolated database/auth target (never infer safety from a localhost app alone).
 Default web runner: existing tests, otherwise local Playwright. Supabase: local CLI stack;
 fixed synthetic users, automatic normal user sessions, real RLS; no manual email/password loop.
+Hosted Supabase (production edge functions, staging): QA user via the plugin's `sbauth`;
+write here the exact lines: `QA_ACCESS_TOKEN=$(sbauth <project> token)` + any one-time gating
+step (e.g. `sbauth <project> rpc accept_terms '{"version":"..."}'`), user id, never the password.
 Record actual auth setup path and fixture roles; secret VALUES never go in this file.
 HTML report + video paths, retained under <main-repo>/.squad-artifacts/<run-id>/<commit>/
 (Git-ignored) before worktree cleanup. The requested WF ticket needs successful-flow video,
