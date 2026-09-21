@@ -26,40 +26,40 @@ echo 'SUPABASE_ACCESS_TOKEN=sbp_PASTE_YOUR_TOKEN_HERE' >> ~/.config/supabase/sbq
 
 ### Part 2 — for each new project
 
-Below, change `love-app` to your project's folder name (the one under `~/projects/`).
-In the **first** line only, also write it with underscores instead of hyphens (`love_app`).
+Below, replace `project-1` with your project's folder name (the one under `~/projects/`).
+In **Step 1 only**, write it with underscores instead of hyphens (`project_1`).
 
 **Step 1 — tell the scripts which Supabase project it is**
 ```bash
-echo 'SBQ_REF_love_app=PASTE_THE_PROJECT_REF_HERE' >> ~/.config/supabase/sbq.env
+echo 'SBQ_REF_project_1=PASTE_THE_PROJECT_REF_HERE' >> ~/.config/supabase/sbq.env
 ```
 
 **Step 2 — check**
 ```bash
-sbauth love-app doctor
+sbauth project-1 doctor
 ```
 You should see `ok`, `ok`, `activo`, and `usuario QA: ninguno`.
 If `proveedor Email` says `APAGADO`: dashboard → Authentication → Sign In / Providers → Email → Enable, then run Step 2 again.
 
 **Step 3 — create the robot account**
 ```bash
-sbauth love-app setup
+sbauth project-1 setup
 ```
-You should see `ok: usuario QA de love-app = … login verificado`.
+You should see `ok: usuario QA de project-1 = … login verificado`.
 
 **Step 4 — only if the app has a "door" after login** (accept terms, beta list, onboarding).
-Ask Engineering/Squad for the exact line; for love-app it is:
+Ask Engineering/Squad for the exact line. It looks like this:
 ```bash
-sbauth love-app rpc accept_terms '{"version":"2026-09-19"}'
+sbauth project-1 rpc accept_terms '{"version":"2026-01-01"}'
 ```
 (No output = fine.)
 
 **Step 5 — test**
 ```bash
-sbauth love-app token
+sbauth project-1 token
 ```
 A long string starting with `eyJ` = **done**. Agents now log in by themselves with
-`QA_ACCESS_TOKEN=$(sbauth love-app token)`.
+`QA_ACCESS_TOKEN=$(sbauth project-1 token)`.
 
 That's all. Part 1 once; Part 2 once per project. Everything else below is reference.
 
