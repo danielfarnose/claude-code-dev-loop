@@ -1,50 +1,69 @@
 # Supabase helpers — SQL and a QA login without a human
 
-## TL;DR — copy & paste, one project at a time
+## Quick start — copy, paste, done
 
-Replace `PROJECT` with the project folder name (e.g. `love-app`) in every step. Run them in a
-terminal on the server where Squad runs (or prefixed with `!` inside Claude Code).
+**What this is:** your apps use Google login. Robots can't log in with Google. So each project gets
+one robot account (email + password) that only the agents use. You set it up once; after that
+nobody asks you to log in ever again.
 
-1. **Install the two commands** (first time only):
-   ```bash
-   mkdir -p ~/.local/bin && ln -sf ~/projects/claude-code-dev-loop/scripts/supabase/sbq ~/projects/claude-code-dev-loop/scripts/supabase/sbauth ~/.local/bin/
-   ```
-2. **Personal Access Token** (first time only). Supabase → Account → Access Tokens → Generate
-   new token (scope "database query" is enough). Then:
-   ```bash
-   mkdir -p ~/.config/supabase && touch ~/.config/supabase/sbq.env && chmod 600 ~/.config/supabase/sbq.env
-   echo 'SUPABASE_ACCESS_TOKEN=sbp_PASTE_YOUR_TOKEN_HERE' >> ~/.config/supabase/sbq.env
-   ```
-3. **Register the project** (once per project). The ref is the 20-letter id in the project URL
-   `https://supabase.com/dashboard/project/<ref>`. Hyphens in the project name become underscores:
-   ```bash
-   echo 'SBQ_REF_PROJECT=PASTE_THE_REF_HERE' >> ~/.config/supabase/sbq.env
-   ```
-4. **Check everything talks** (public key is read from `~/projects/PROJECT/.env.local`; if the
-   doctor cannot find it, add `SBAUTH_PROJECT_ANON_KEY=sb_publishable_…` to `~/.config/supabase/qa-users.env`):
-   ```bash
-   sbauth PROJECT doctor
-   ```
-   All four lines must be `ok`/`activo`. If `proveedor Email` says APAGADO: Supabase dashboard →
-   Authentication → Sign In / Providers → Email → Enable → run the doctor again.
-5. **Create the QA user** (once per project — it creates a real user in that project's auth):
-   ```bash
-   sbauth PROJECT setup
-   ```
-6. **Open the app's extra gate, if it has one** (terms of use, beta allowlist, onboarding). Ask
-   Squad/Engineering which RPC the app uses; love-app is:
-   ```bash
-   sbauth love-app rpc accept_terms '{"version":"2026-09-19"}'
-   ```
-7. **Test it**:
-   ```bash
-   sbauth PROJECT token
-   ```
-   A long `eyJ…` string means done. From now on agents log in with
-   `QA_ACCESS_TOKEN=$(sbauth PROJECT token)` and never ask you again. Write the gate command from
-   step 6 into the project's `.claude/squad.md §Flows`.
+**Before you start** you need two things from the Supabase dashboard:
+- **Your token**: Account (top-right avatar) → Access Tokens → *Generate new token* → copy it. It starts with `sbp_`.
+- **The project ref**: open the project; the URL is `supabase.com/dashboard/project/XXXXXXXX` → copy that `XXXXXXXX`.
 
-Done. Steps 1-2 are a one-off; steps 3-7 are repeated once for each new project.
+Paste each block into the server terminal (or type it after `!` inside Claude Code).
+
+### Part 1 — first time only (do this once, never again)
+
+```bash
+mkdir -p ~/.local/bin ~/.config/supabase
+ln -sf ~/projects/claude-code-dev-loop/scripts/supabase/sbq ~/projects/claude-code-dev-loop/scripts/supabase/sbauth ~/.local/bin/
+touch ~/.config/supabase/sbq.env && chmod 600 ~/.config/supabase/sbq.env
+```
+
+```bash
+echo 'SUPABASE_ACCESS_TOKEN=sbp_PASTE_YOUR_TOKEN_HERE' >> ~/.config/supabase/sbq.env
+```
+
+### Part 2 — for each new project
+
+Below, change `love-app` to your project's folder name (the one under `~/projects/`).
+In the **first** line only, also write it with underscores instead of hyphens (`love_app`).
+
+**Step 1 — tell the scripts which Supabase project it is**
+```bash
+echo 'SBQ_REF_love_app=PASTE_THE_PROJECT_REF_HERE' >> ~/.config/supabase/sbq.env
+```
+
+**Step 2 — check**
+```bash
+sbauth love-app doctor
+```
+You should see `ok`, `ok`, `activo`, and `usuario QA: ninguno`.
+If `proveedor Email` says `APAGADO`: dashboard → Authentication → Sign In / Providers → Email → Enable, then run Step 2 again.
+
+**Step 3 — create the robot account**
+```bash
+sbauth love-app setup
+```
+You should see `ok: usuario QA de love-app = … login verificado`.
+
+**Step 4 — only if the app has a "door" after login** (accept terms, beta list, onboarding).
+Ask Engineering/Squad for the exact line; for love-app it is:
+```bash
+sbauth love-app rpc accept_terms '{"version":"2026-09-19"}'
+```
+(No output = fine.)
+
+**Step 5 — test**
+```bash
+sbauth love-app token
+```
+A long string starting with `eyJ` = **done**. Agents now log in by themselves with
+`QA_ACCESS_TOKEN=$(sbauth love-app token)`.
+
+That's all. Part 1 once; Part 2 once per project. Everything else below is reference.
+
+---
 
 Two small bash scripts for apps backed by Supabase. Both read one config file that lives
 **outside** the plugin and outside the project (`~/.config/supabase/sbq.env`, `chmod 600`):
