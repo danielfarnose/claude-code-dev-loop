@@ -1,5 +1,51 @@
 # Supabase helpers — SQL and a QA login without a human
 
+## TL;DR — copy & paste, one project at a time
+
+Replace `PROJECT` with the project folder name (e.g. `love-app`) in every step. Run them in a
+terminal on the machine where Squad runs (or prefixed with `!` inside Claude Code).
+
+1. **Install the two commands** (once per machine):
+   ```bash
+   mkdir -p ~/.local/bin && ln -sf ~/projects/claude-code-dev-loop/scripts/supabase/sbq ~/projects/claude-code-dev-loop/scripts/supabase/sbauth ~/.local/bin/
+   ```
+2. **Personal Access Token** (once per machine). Supabase → Account → Access Tokens → Generate
+   new token (scope "database query" is enough). Then:
+   ```bash
+   mkdir -p ~/.config/supabase && touch ~/.config/supabase/sbq.env && chmod 600 ~/.config/supabase/sbq.env
+   echo 'SUPABASE_ACCESS_TOKEN=sbp_PASTE_YOUR_TOKEN_HERE' >> ~/.config/supabase/sbq.env
+   ```
+3. **Register the project** (once per project). The ref is the 20-letter id in the project URL
+   `https://supabase.com/dashboard/project/<ref>`. Hyphens in the project name become underscores:
+   ```bash
+   echo 'SBQ_REF_PROJECT=PASTE_THE_REF_HERE' >> ~/.config/supabase/sbq.env
+   ```
+4. **Check everything talks** (public key is read from `~/projects/PROJECT/.env.local`; if the
+   doctor cannot find it, add `SBAUTH_PROJECT_ANON_KEY=sb_publishable_…` to `~/.config/supabase/qa-users.env`):
+   ```bash
+   sbauth PROJECT doctor
+   ```
+   All four lines must be `ok`/`activo`. If `proveedor Email` says APAGADO: Supabase dashboard →
+   Authentication → Sign In / Providers → Email → Enable → run the doctor again.
+5. **Create the QA user** (once per project — it creates a real user in that project's auth):
+   ```bash
+   sbauth PROJECT setup
+   ```
+6. **Open the app's extra gate, if it has one** (terms of use, beta allowlist, onboarding). Ask
+   Squad/Engineering which RPC the app uses; love-app is:
+   ```bash
+   sbauth love-app rpc accept_terms '{"version":"2026-09-19"}'
+   ```
+7. **Test it**:
+   ```bash
+   sbauth PROJECT token
+   ```
+   A long `eyJ…` string means done. From now on agents log in with
+   `QA_ACCESS_TOKEN=$(sbauth PROJECT token)` and never ask you again. Write the gate command from
+   step 6 into the project's `.claude/squad.md §Flows`.
+
+Done. Steps 1-2 never again; steps 3-7 once per new project.
+
 Two small bash scripts for apps backed by Supabase. Both read one config file that lives
 **outside** the plugin and outside the project (`~/.config/supabase/sbq.env`, `chmod 600`):
 
