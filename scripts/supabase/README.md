@@ -70,7 +70,7 @@ Two small bash scripts for apps backed by Supabase. Both read one config file th
 
 ```bash
 SUPABASE_ACCESS_TOKEN=sbp_...        # Personal Access Token; a token scoped to "database query" is enough
-SBQ_REF_love_app=nrmcoyiqnjsagxflacub  # one SBQ_REF_<project> per project (hyphens → underscores)
+SBQ_REF_project_1=abcdefghijklmnopqrst  # one SBQ_REF_<project> per project (hyphens → underscores)
 ```
 
 Install once so they are on `PATH` (agents call them by name):
@@ -112,7 +112,7 @@ sbauth <project> whoami
 - Credentials land in `~/.config/supabase/qa-users.env` (`chmod 600`):
   `SBAUTH_<project>_EMAIL / _PASSWORD / _USER_ID`. **Never** in the repo, tickets, BOARD or Trello.
 - If the app has extra gating (beta allowlist, terms of use, onboarding row), do it once through
-  the app's own path, e.g. `sbauth love-app rpc accept_terms '{"version":"2026-09-19"}'`, and
+  the app's own path, e.g. `sbauth project-1 rpc accept_terms '{"version":"2026-01-01"}'`, and
   record that command in the project's `squad.md §Flows` so the next run knows.
 
 ### How agents use it
