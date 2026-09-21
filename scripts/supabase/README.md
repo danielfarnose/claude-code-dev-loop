@@ -3,13 +3,13 @@
 ## TL;DR — copy & paste, one project at a time
 
 Replace `PROJECT` with the project folder name (e.g. `love-app`) in every step. Run them in a
-terminal on the machine where Squad runs (or prefixed with `!` inside Claude Code).
+terminal on the server where Squad runs (or prefixed with `!` inside Claude Code).
 
-1. **Install the two commands** (once per machine):
+1. **Install the two commands** (first time only):
    ```bash
    mkdir -p ~/.local/bin && ln -sf ~/projects/claude-code-dev-loop/scripts/supabase/sbq ~/projects/claude-code-dev-loop/scripts/supabase/sbauth ~/.local/bin/
    ```
-2. **Personal Access Token** (once per machine). Supabase → Account → Access Tokens → Generate
+2. **Personal Access Token** (first time only). Supabase → Account → Access Tokens → Generate
    new token (scope "database query" is enough). Then:
    ```bash
    mkdir -p ~/.config/supabase && touch ~/.config/supabase/sbq.env && chmod 600 ~/.config/supabase/sbq.env
@@ -44,7 +44,7 @@ terminal on the machine where Squad runs (or prefixed with `!` inside Claude Cod
    `QA_ACCESS_TOKEN=$(sbauth PROJECT token)` and never ask you again. Write the gate command from
    step 6 into the project's `.claude/squad.md §Flows`.
 
-Done. Steps 1-2 never again; steps 3-7 once per new project.
+Done. Steps 1-2 are a one-off; steps 3-7 are repeated once for each new project.
 
 Two small bash scripts for apps backed by Supabase. Both read one config file that lives
 **outside** the plugin and outside the project (`~/.config/supabase/sbq.env`, `chmod 600`):
