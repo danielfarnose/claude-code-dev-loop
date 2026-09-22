@@ -24,6 +24,13 @@ touch ~/.config/supabase/sbq.env && chmod 600 ~/.config/supabase/sbq.env
 echo 'SUPABASE_ACCESS_TOKEN=sbp_PASTE_YOUR_TOKEN_HERE' >> ~/.config/supabase/sbq.env
 ```
 
+The QA user is only half of it: a token opens no app by itself. Install the browser once too —
+without it an eval dies on its first line and looks exactly like a product bug.
+
+```bash
+npm i -g playwright && npx playwright install chromium
+```
+
 ### Part 2 — for each new project
 
 Below, replace `project-1` with your project's folder name (the one under `~/projects/`).
@@ -38,7 +45,8 @@ echo 'SBQ_REF_project_1=PASTE_THE_PROJECT_REF_HERE' >> ~/.config/supabase/sbq.en
 ```bash
 sbauth project-1 doctor
 ```
-You should see `ok`, `ok`, `activo`, and `usuario QA: ninguno`.
+You should see `ok`, `ok`, `activo`, `usuario QA: ninguno` and `navegador (Playwright): ok`.
+If the browser line says `FALTA`, run the `npm i -g playwright` block above and repeat.
 If `proveedor Email` says `APAGADO`: dashboard → Authentication → Sign In / Providers → Email → Enable, then run Step 2 again.
 
 **Step 3 — create the robot account**
@@ -98,7 +106,7 @@ should it borrow a human session. `sbauth` gives each project **one QA user with
 Google) and hands out fresh JWTs on demand:
 
 ```bash
-sbauth <project> doctor                 # sbq works? public key found? Email provider on? QA user exists?
+sbauth <project> doctor                 # sbq works? public key found? Email provider on? QA user exists? browser installed?
 sbauth <project> setup [email]          # ONCE per project: creates the user via SQL (confirmed, random password)
 sbauth <project> token                  # prints a fresh access token (JWT) — call it every time, never cache
 sbauth <project> rpc <fn> ['<json>']    # call a PostgREST RPC as the QA user (accept terms, seed, …)
@@ -134,3 +142,30 @@ Rules for `@developer` / `@qa`:
    (it creates a user in production auth; that is the operator's call) — then continue.
 3. Google OAuth itself is still not verified by this path; report that coverage separately
    (see README §"Local WF tests").
+
+### Quotas, rate limits and the browser — the three things that actually break these runs
+
+A logged-in eval runs against **production**: real auth, real money, real limits. None of these
+are product defects, and all three have burned a full day before. Treat them as setup, not as
+findings.
+
+**1. Read the remaining budget, don't discover it by crashing.** If the backend returns how much
+quota is left (a header like `X-Dates-Left`, a field in the body), log it on every call and print
+it per case. A run that knows it has 1 unit left can stop cleanly instead of dying half-way and
+looking like a regression.
+
+**2. Never retry a quota or rate-limit error, and never lift the limit for everyone.** On
+`rate_limited` / `quota_exhausted`, stop and report the literal error. When a daily cap per
+identity is what blocks the run, the fix is a **quota tier for the QA identity only** — a
+per-identity allowlist the operator sets (e.g. `QA_IDENTITIES` + a QA cap), keyed off the
+**verified** user id so no client can claim it. Raising the normal users' cap to unblock a test
+hands every real player that cap too, and someone has to remember to put it back.
+
+**3. Use the bundled chromium, never `channel: 'chrome'`.** These hosts have no Google Chrome
+installed, only Playwright's own browser. Asking for the channel fails with a message about a
+missing executable that reads like a broken test. `sbauth <project> doctor` checks the module and
+the browser; if it says `FALTA`, fix that before blaming the app.
+
+Pace requests below the documented per-minute limit (a fixed sleep between cases is enough) and
+make the run **resumable** — record each case as it finishes and support starting from an index,
+so a run that stops at case 3 of 5 never re-pays for cases 1 and 2.

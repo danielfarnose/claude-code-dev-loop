@@ -313,6 +313,11 @@ email+password QA user per project next to the humans' Google login and prints a
 `sbauth <project> token`; tests read it from `QA_ACCESS_TOKEN`. Agents never ask the human for a
 session. See [`scripts/supabase/README.md`](scripts/supabase/README.md).
 
+A hosted run needs a browser as well as a session: `npm i -g playwright && npx playwright install
+chromium`, checked by `sbauth <project> doctor`. And it runs against production limits — read the
+remaining quota from the response, never retry a `rate_limited`/`quota_exhausted`, and give the QA
+identity its own quota tier instead of raising the one every real user shares. Same reference.
+
 The target app declares its real startup, auth/seed, test and artifact paths in `squad.md §Flows`.
 At its first requested WF test, missing setup becomes a preceding implementation ticket, once.
 Prefer native app/Playwright execution; only local Supabase needs its container

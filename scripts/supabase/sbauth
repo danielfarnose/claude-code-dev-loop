@@ -88,6 +88,21 @@ case "$CMD" in
       *) echo "activo (respuesta a login falso: ${MSG:-?})" ;;
     esac
     printf 'usuario QA:             '; [ -n "$QA_EMAIL" ] && echo "$QA_EMAIL (id ${QA_ID:-?})" || echo "ninguno → sbauth $PROJECT setup"
+    # Tener token no sirve de nada si luego no hay con qué abrir la app. Un eval
+    # que se cae por falta de navegador parece un fallo del producto y no lo es:
+    # pasó en love-app el 2026-09-22 y costó media hora de diagnóstico.
+    printf 'navegador (Playwright): '
+    PW_ROOT="$(npm root -g 2>/dev/null || true)"
+    PW_PATH="$(NODE_PATH="$PW_ROOT" node -e "process.stdout.write(require.resolve('playwright'))" 2>/dev/null || true)"
+    if [ -n "$PW_PATH" ]; then
+      if ls "$HOME/.cache/ms-playwright" 2>/dev/null | grep -q chromium; then
+        echo "ok ($PW_PATH)"
+      else
+        echo "módulo ok pero SIN navegador → npx playwright install chromium"
+      fi
+    else
+      echo "FALTA → npm i -g playwright && npx playwright install chromium"
+    fi
     ;;
   setup)
     [ -z "$QA_EMAIL" ] || { echo "sbauth: '$PROJECT' ya tiene usuario QA ($QA_EMAIL, id $QA_ID). Borra su terna de $QACONF para recrearlo." >&2; exit 1; }
