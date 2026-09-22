@@ -314,7 +314,9 @@ email+password QA user per project next to the humans' Google login and prints a
 session. See [`scripts/supabase/README.md`](scripts/supabase/README.md).
 
 A hosted run needs a browser as well as a session: `npm i -g playwright && npx playwright install
-chromium`, checked by `sbauth <project> doctor`. And it runs against production limits — read the
+chromium`, plus `PLAYWRIGHT_MODULE=scripts/qa/pw-shim.mjs` so ESM can resolve it from any project —
+a global install alone is invisible to `import()`. `sbauth <project> doctor` verifies it by opening
+a browser. And it runs against production limits — read the
 remaining quota from the response, never retry a `rate_limited`/`quota_exhausted`, and give the QA
 identity its own quota tier instead of raising the one every real user shares. Same reference.
 

@@ -91,17 +91,16 @@ case "$CMD" in
     # Tener token no sirve de nada si luego no hay con qué abrir la app. Un eval
     # que se cae por falta de navegador parece un fallo del producto y no lo es:
     # pasó en love-app el 2026-09-22 y costó media hora de diagnóstico.
+    # Se comprueba ABRIENDO un navegador con el shim, que es exactamente como
+    # lo hace un eval. Comprobar solo que el modulo "esta" da falsos verdes:
+    # `import('playwright')` es ESM y no mira NODE_PATH, asi que una instalacion
+    # global resuelve con require pero revienta en el eval (love-app, 2026-09-22).
     printf 'navegador (Playwright): '
-    PW_ROOT="$(npm root -g 2>/dev/null || true)"
-    PW_PATH="$(NODE_PATH="$PW_ROOT" node -e "process.stdout.write(require.resolve('playwright'))" 2>/dev/null || true)"
-    if [ -n "$PW_PATH" ]; then
-      if ls "$HOME/.cache/ms-playwright" 2>/dev/null | grep -q chromium; then
-        echo "ok ($PW_PATH)"
-      else
-        echo "módulo ok pero SIN navegador → npx playwright install chromium"
-      fi
+    SHIM="$(dirname "$(readlink -f "$0")")/../qa/pw-shim.mjs"
+    if node -e "import('$SHIM').then(m=>m.chromium.launch({headless:true})).then(b=>b.close()).then(()=>process.exit(0),()=>process.exit(1))" 2>/dev/null; then
+      echo "ok (usa PLAYWRIGHT_MODULE=$SHIM)"
     else
-      echo "FALTA → npm i -g playwright && npx playwright install chromium"
+      echo "FALLA → npm i -g playwright && npx playwright install chromium"
     fi
     ;;
   setup)

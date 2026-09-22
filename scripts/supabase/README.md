@@ -31,6 +31,18 @@ without it an eval dies on its first line and looks exactly like a product bug.
 npm i -g playwright && npx playwright install chromium
 ```
 
+A global install alone is **not** enough: `import('playwright')` is ESM and ignores `NODE_PATH`, so
+an eval launched from a project (or a worktree) dies with `ERR_MODULE_NOT_FOUND` even though
+`npm ls -g` swears the package is there. Point evals at the bundled shim, which resolves the module
+wherever it lives and drops `channel: 'chrome'` (these hosts have no Google Chrome):
+
+```bash
+PLAYWRIGHT_MODULE=~/projects/claude-code-dev-loop/scripts/qa/pw-shim.mjs
+```
+
+`sbauth <project> doctor` checks this by actually opening a browser, not by asking whether the
+package resolves — that shortcut reports a false green.
+
 ### Part 2 — for each new project
 
 Below, replace `project-1` with your project's folder name (the one under `~/projects/`).
@@ -46,7 +58,8 @@ echo 'SBQ_REF_project_1=PASTE_THE_PROJECT_REF_HERE' >> ~/.config/supabase/sbq.en
 sbauth project-1 doctor
 ```
 You should see `ok`, `ok`, `activo`, `usuario QA: ninguno` and `navegador (Playwright): ok`.
-If the browser line says `FALTA`, run the `npm i -g playwright` block above and repeat.
+The browser line prints the `PLAYWRIGHT_MODULE` path to use. If it says `FALLA`, run the
+`npm i -g playwright` block above and repeat.
 If `proveedor Email` says `APAGADO`: dashboard → Authentication → Sign In / Providers → Email → Enable, then run Step 2 again.
 
 **Step 3 — create the robot account**
@@ -163,8 +176,9 @@ hands every real player that cap too, and someone has to remember to put it back
 
 **3. Use the bundled chromium, never `channel: 'chrome'`.** These hosts have no Google Chrome
 installed, only Playwright's own browser. Asking for the channel fails with a message about a
-missing executable that reads like a broken test. `sbauth <project> doctor` checks the module and
-the browser; if it says `FALTA`, fix that before blaming the app.
+missing executable that reads like a broken test. `scripts/qa/pw-shim.mjs` strips the channel and
+resolves the module from anywhere; run evals with `PLAYWRIGHT_MODULE` pointing at it, and let
+`sbauth <project> doctor` confirm it opens a browser before blaming the app.
 
 Pace requests below the documented per-minute limit (a fixed sleep between cases is enough) and
 make the run **resumable** — record each case as it finishes and support starting from an index,
