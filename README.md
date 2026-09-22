@@ -313,7 +313,9 @@ email+password QA user per project next to the humans' Google login and prints a
 `sbauth <project> token`; tests read it from `QA_ACCESS_TOKEN`. Agents never ask the human for a
 session. See [`scripts/supabase/README.md`](scripts/supabase/README.md).
 
-A hosted run needs a browser as well as a session: `npm i -g playwright && npx playwright install
+When a run needs to act as a signed-in user, load the **`qa-live-user`** skill: it carries the
+whole path (QA session, browser, production limits) and, importantly, the rule that none of those
+failures is a product defect. A hosted run needs a browser as well as a session: `npm i -g playwright && npx playwright install
 chromium`, plus `PLAYWRIGHT_MODULE=scripts/qa/pw-shim.mjs` so ESM can resolve it from any project —
 a global install alone is invisible to `import()`. `sbauth <project> doctor` verifies it by opening
 a browser. And it runs against production limits — read the
@@ -669,7 +671,8 @@ squad/
 │   ├── codex-board/           # Codex adapter for Trello sync
 │   ├── codex-security-audit/  # Codex entry point for the manual security role
 │   ├── recording-learnings/   # shared self-learning
-│   └── inspect-project/       # shared onboarding
+│   ├── inspect-project/       # shared onboarding
+│   └── qa-live-user/          # testing as a logged-in user: QA session, browser, live quotas
 ├── templates/
 │   ├── squad.md         # the per-project contract template
 │   ├── ticket.md        # ticket template (product first, <60s, 3-5 criteria)

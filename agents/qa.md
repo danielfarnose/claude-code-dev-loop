@@ -57,6 +57,11 @@ the developer changed.
   (the plugin's `scripts/supabase/sbauth`; the QA user and any gating step are recorded in
   `squad.md §Flows`). Never ask the human for a session or Google login; if `sbauth <project>
   doctor` shows no QA user, checkpoint asking the operator to run `sbauth <project> setup`.
+  Before any run that acts as a signed-in user, load the **`qa-live-user`** skill and run
+  `sbauth <project> doctor` FIRST: it also catches the missing browser and tells you the
+  `PLAYWRIGHT_MODULE` to use. A daily quota, a per-minute rate limit or a missing Playwright are
+  environment blockers too — never retry them, never raise a limit that real players share, and
+  never file them as product defects.
   Judge the integrated journey and full affected range, not just `git show HEAD`. Return a
   plain-language journey summary, logic findings (or checks with no findings), coverage gaps,
   and evidence paths for the lead to preserve and attach to that final ticket's Trello card.
