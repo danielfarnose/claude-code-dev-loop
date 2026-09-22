@@ -182,6 +182,14 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    requested flow set. It may review an existing flow without feature tickets. Missing browser/
    auth setup becomes an implementation ticket before it. A late request adds/reuses that same
    final ticket; resume preserves the setting and never duplicates it.
+   **Check the WF environment NOW, not at step 3b.** The WF ticket runs last, with every
+   dependency already `done`, so a missing browser or QA session surfaces after the whole chain
+   is built — the worst possible moment, and it has cost a full day. The moment `WF: requested`
+   is recorded, run the project's WF setup check (Supabase-backed apps: `sbauth <project>
+   doctor`, which covers SQL access, the anon key, the Email provider, the QA user and the
+   browser) and act on the result here: fix what you can, turn what only the operator can do
+   into a setup ticket ordered BEFORE the implementation tickets, and checkpoint if it needs a
+   decision. Never start the chain knowing the last step cannot run.
 1. @architect (task or pm spec) → 1..N ordered tickets (big task = split with dependencies).
    Register them all in the BOARD as `ready`, in order. Phase `implementing`.
    **R0 skips this step**: you write the micro-ticket yourself, in the same tickets path.
