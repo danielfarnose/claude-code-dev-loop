@@ -59,7 +59,9 @@ the developer changed.
   doctor` shows no QA user, checkpoint asking the operator to run `sbauth <project> setup`.
   Before any run that acts as a signed-in user, load the **`qa-live-user`** skill and run
   `sbauth <project> doctor` FIRST: it also catches the missing browser and tells you the
-  `PLAYWRIGHT_MODULE` to use. A daily quota, a per-minute rate limit or a missing Playwright are
+  `PLAYWRIGHT_MODULE` to use. Run every browser process (eval, journey, video) through the
+  plugin's `scripts/qa/pw-run`, one at a time: it caps RAM and time so a runaway browser dies
+  instead of the agent. A daily quota, a per-minute rate limit or a missing Playwright are
   environment blockers too — never retry them, never raise a limit that real players share, and
   never file them as product defects.
   Judge the integrated journey and full affected range, not just `git show HEAD`. Return a
