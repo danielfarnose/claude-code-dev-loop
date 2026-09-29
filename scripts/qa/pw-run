@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Corre un proceso de navegador (eval, journey, vídeo) con tope de RAM y de tiempo.
+#
+# Visto en producción (love-app, 2026-09-29): una captura con WebGL por software
+# se comió la RAM de un VPS de 11 GB, el kernel mató al agente entero y la sesión
+# quedó "en ejecución" dos horas sin nadie detrás. Con el tope, el que muere es
+# el navegador: el agente recibe un error y lo reporta.
+#
+# Uso:  pw-run [--mem 2G] [--time 300] <comando...>
+# Ej.:  PLAYWRIGHT_MODULE=… pw-run node scripts/mi-eval.mjs
+#       pw-run --mem 3G --time 600 npx playwright test e2e/flow.spec.ts
+#
+# Linux con systemd: tope real de RAM (systemd-run --user --scope).
+# Resto (macOS, contenedores sin systemd): solo tope de tiempo.
+set -u
+
+mem=2G secs=300
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --mem) mem="$2"; shift 2 ;;
+    --time) secs="$2"; shift 2 ;;
+    --) shift; break ;;
+    *) break ;;
+  esac
+done
+[ $# -eq 0 ] && { sed -n '9,11p' "$0"; exit 2; }
+
+tmo=""
+if command -v timeout >/dev/null; then tmo="timeout -k 10 $secs"
+elif command -v gtimeout >/dev/null; then tmo="gtimeout -k 10 $secs"; fi
+
+if command -v systemd-run >/dev/null && systemd-run --user --scope --quiet true 2>/dev/null; then
+  $tmo systemd-run --user --scope --quiet -p MemoryMax="$mem" -p MemorySwapMax=0 "$@"
+else
+  $tmo "$@"
+fi
+rc=$?
+
+case $rc in
+  124) echo "pw-run: abortado por tiempo (más de ${secs}s) — entorno, no defecto de producto" >&2 ;;
+  137) echo "pw-run: abortado por RAM (más de ${mem}) o por tiempo — entorno, no defecto de producto" >&2 ;;
+esac
+exit $rc

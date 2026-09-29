@@ -1,6 +1,6 @@
 ---
 name: qa-live-user
-description: Drive a real logged-in session against a hosted app — Google-login apps backed by Supabase, evals and journeys against production or a preview — without ever asking a human to log in. Use when a test, eval or WF check needs to act as a signed-in user, when a run returns 401/not_authenticated, or when it dies on a daily quota, a per-minute rate limit or a missing browser. Covers the QA user (sbauth), the browser (Playwright shim) and the production limits.
+description: Drive a real logged-in session against a hosted app — Google-login apps backed by Supabase, evals and journeys against production or a preview — without ever asking a human to log in. Use when a test, eval or WF check needs to act as a signed-in user, when a run returns 401/not_authenticated, or when it dies on a daily quota, a per-minute rate limit, a missing browser or a browser that eats the host's RAM. Covers the QA user (sbauth), the browser (Playwright shim and pw-run caps) and the production limits.
 ---
 
 # Test as a real logged-in user
@@ -55,6 +55,23 @@ PLAYWRIGHT_MODULE=<PLUGIN_ROOT>/scripts/qa/pw-shim.mjs
 
 `doctor` prints the exact path to use, and verifies it by opening a browser rather than by asking
 whether the package resolves — that cheaper check reports a false green.
+
+## Cap the browser
+
+A headless browser has no ceiling of its own, and on a small host the kernel's answer to running
+out of memory is to kill the biggest process — often the agent, not Chromium. The session then
+sits "running" with nobody behind it. Run every eval, journey and video recording through the
+plugin's wrapper, so a runaway browser dies alone and you get an error to report:
+
+```bash
+PLAYWRIGHT_MODULE=… <PLUGIN_ROOT>/scripts/qa/pw-run node scripts/<eval>.mjs
+<PLUGIN_ROOT>/scripts/qa/pw-run --mem 3G --time 600 npx playwright test <spec>
+```
+
+Defaults are 2 GB and 300 s (hard RAM cap on Linux with systemd; elsewhere only the time cap).
+One browser at a time — don't launch evals in parallel on the same host. Software WebGL
+(`--use-angle=swiftshader`) costs the most: use it only when the page needs WebGL, and give it
+`--mem 3G`. An abort by `pw-run` is an **environment** blocker, not a product defect.
 
 ## Production limits
 
