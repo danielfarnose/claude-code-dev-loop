@@ -103,6 +103,11 @@ skips verification for being «small». What changes is **which instrument**, ne
   permanent tokens). Generate/report the evidence by **path**; open with Read only the minimum the
   verdict needs to see (1 frame per variant), never re-read one already seen, and the mechanical
   checks (does it exist? dimensions?) go with `ls`/`file`/`ffprobe`.
+- **Captures: the project's tool, cropped, never full-page.** Use the capture script that
+  `squad.md §Verification` names (if there is none, say so to the lead; never write your own
+  puppeteer/playwright per ticket). Capture the viewport or crop to the element under review — a
+  full-page PNG at 1280 px is ~400 KB of base64 per Read, and three of them took the host app to
+  10 GB and a forced quit (2026-10-06). Max 2-3 images per verdict; big JSON through `jq`, not `cat`.
 
 ## What you review (blocking in bold)
 - **Scope — review the developer's COMMIT, not the working tree.** The change to judge is the last

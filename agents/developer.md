@@ -123,6 +123,12 @@ the render, look at **at most 1 frame per variant, once, as late as possible** �
 image you already saw. For mechanical checks (does it exist? how big? dimensions?) use `ls`/`file`/
 `ffprobe`, which cost 2 lines.
 
+**Captures: the project's tool, never your own.** Use the capture script that `squad.md
+§Verification` names; if there is none, report it and skip the visual check — never write a
+puppeteer/playwright script per ticket (measured 2026-10-06: 17 throwaway scripts, 36 commands and
+1 h of a 61-min ticket, all on captures that hung because nothing closed the browser on error).
+Capture the viewport or crop to the element, never the full page.
+
 **Sweep for text your change left lying — it is the step that avoids the most rejections.** Half of
 the loop's historical REJECTEDs are this, and it is almost never copy you wrote wrong: it is copy that
 was **already there** and your change turned false. A confirm that now does more than it announces, a
