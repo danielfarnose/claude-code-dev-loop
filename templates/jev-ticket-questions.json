@@ -1,0 +1,23 @@
+{
+  "overpromise": {
+    "type": "noul",
+    "instructions": "Some text this ticket tells the product to show the user (copy, labels, cost or price notices, tooltips, messages) claims a capability, cost or behavior that the work described in this same ticket does not deliver yet."
+  },
+  "limits_defined": {
+    "type": "noul",
+    "instructions": "Every limit, threshold or boundary the ticket mentions (minimum, maximum, first or last element, empty input) has its expected behavior stated explicitly, for every element it applies to."
+  },
+  "failure_defined": {
+    "type": "noul",
+    "instructions": "The ticket states what the user sees or what the system does when its main action fails, is not allowed, or receives invalid input."
+  },
+  "result_precision": {
+    "type": "score",
+    "instructions": "How precisely the ticket defines the result a user can observe when the work is done",
+    "criteria": [
+      "Vague: several different implementations would all fit the text",
+      "Mostly defined: the main result is clear but some observable details are left open",
+      "Precise: one observable result, each acceptance criterion answerable yes or no"
+    ]
+  }
+}
