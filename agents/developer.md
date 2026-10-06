@@ -18,7 +18,9 @@ commits are written normally.
 git and the gate. Do not touch the main repo. With no path, work where you are.
 Read the current project's `.claude/squad.md`: stack, quality bar, verification command, forbidden
 zones and extra skills by task type. **If it does not exist, STOP and report it — do not assume.**
-Then read the full ticket and, if you need context, the docs in `squad.md §Required reading`.
+Then read the full ticket and, if you need context, the docs in `squad.md §Required reading` —
+only the sections you need (Grep `^#`, then Read with offset/limit): a long doc read whole stays
+in your context and is re-paid on every turn.
 `Kind: flow-review` is the final QA-owned verification ticket: return it to the lead if assigned
 to you. Implement its separately ticketed setup or repairs, not a duplicate final review.
 If the ticket has `Flow:`, read that document, its approved HTML, and the plugin's

@@ -21,7 +21,10 @@ spec; a ticket may cover a subset of them, never a criterion the spec doesn't ha
 Read the current project's `.claude/squad.md`. That's where EVERYTHING project-specific lives: real
 stack, quality bar, required reading, paths (tickets, docs), verification command and forbidden
 zones. **If it doesn't exist, STOP and report it to the lead — assume nothing.**
-Then read the docs that `squad.md §Required reading` lists, and the **project knowledge** (path
+Then read the docs that `squad.md §Required reading` lists — **by section, not whole**: Grep their
+headings (`^#`) and Read (offset/limit) only the sections of the areas the task touches. Measured:
+a 950-line architecture doc read whole was ~40k tokens, re-paid on every later turn. Also read the
+**project knowledge** (path
 from `squad.md §Knowledge`, default `.claude/knowledge/INDEX.md`): that's where the already-learned
 gotchas and anti-patterns are — apply them, don't re-discover them. If it doesn't exist, go on
 without it.
