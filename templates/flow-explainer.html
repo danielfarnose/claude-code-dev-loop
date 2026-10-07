@@ -1,0 +1,100 @@
+<section id="__ROOT_ID__" aria-label="Mapa del flujo">
+  <style>
+    #__ROOT_ID__ .flow-steps{list-style:none;padding:0;display:flex;gap:8px;flex-wrap:wrap}
+    #__ROOT_ID__ .flow-steps li{display:flex;align-items:center;gap:8px;min-width:0}
+    #__ROOT_ID__ .flow-steps li:not(:last-child)::after{content:'→';color:var(--muted-foreground)}
+    #__ROOT_ID__ .flow-panel{margin-top:16px;min-width:0}
+    #__ROOT_ID__ p,#__ROOT_ID__ code,#__ROOT_ID__ summary{overflow-wrap:anywhere}
+    #__ROOT_ID__ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--muted);color:var(--foreground);padding:12px}
+    #__ROOT_ID__ details{margin:12px 0}
+    #__ROOT_ID__ dt{font-weight:500;margin-top:12px}
+    #__ROOT_ID__ dd{margin:4px 0 12px}
+  </style>
+  <h2 data-title></h2>
+  <p class="text-small text-muted" data-revision></p>
+  <p class="text-small text-muted" data-languages></p>
+  <ol class="flow-steps" aria-label="Pasos del recorrido"></ol>
+  <div class="viz-controls" aria-label="Nivel de detalle">
+    <button class="btn" type="button" data-mode="summary" aria-pressed="true">Qué hace</button>
+    <button class="btn" type="button" data-mode="code" aria-pressed="false">Código y agentes</button>
+    <button class="btn" type="button" data-mode="tutor" aria-pressed="false">Tutor</button>
+  </div>
+  <div class="flow-panel" aria-live="polite"></div>
+  <script type="application/json" data-flow>__FLOW_DATA__</script>
+  <script>
+    (() => {
+      const root = document.getElementById('__ROOT_ID__');
+      const flow = JSON.parse(root.querySelector('[data-flow]').textContent);
+      const panel = root.querySelector('.flow-panel');
+      const modes = ['summary', 'code', 'tutor'];
+      let selected = 0, mode = flow.initialMode;
+      const node = (tag, value, parent) => { const element = document.createElement(tag); element.textContent = value; parent.append(element); return element; };
+      root.querySelector('[data-title]').textContent = flow.title;
+      root.querySelector('[data-revision]').textContent = `${flow.project} · Código consultado: ${flow.revision}`;
+      const languages = [...new Set(flow.steps.flatMap((step) => step.code.map((ref) => ref.language)))];
+      root.querySelector('[data-languages]').textContent = `Lenguajes de este recorrido: ${languages.join(', ') || 'sin referencias verificadas'}`;
+      const buttons = flow.steps.map((step, index) => {
+        const item = node('li', '', root.querySelector('.flow-steps'));
+        const button = node('button', `${index + 1}. ${step.title}`, item);
+        button.type = 'button'; button.className = 'btn';
+        button.addEventListener('click', () => { selected = index; render(); save(); });
+        return button;
+      });
+      const codeDetails = (step) => {
+        if (!step.code.length) node('p', 'Sin referencia de código verificada para este paso.', panel);
+        step.code.forEach((ref) => {
+          const details = node('details', '', panel);
+          node('summary', `${ref.path}:${ref.line} · ${ref.symbol} · ${ref.language}`, details);
+          node('code', ref.snippet, node('pre', '', details));
+          ref.annotations.forEach((annotation) => node('p', `Línea ${annotation.line}: ${annotation.text}`, details));
+        });
+      };
+      function render() {
+        const step = flow.steps[selected];
+        buttons.forEach((button, index) => button.setAttribute('aria-pressed', String(index === selected)));
+        root.querySelectorAll('[data-mode]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
+        panel.replaceChildren();
+        node('h3', step.title, panel);
+        node('p', `Lo hace: ${step.actor}${step.agent ? ` · Agente de ejecución: ${step.agent}` : ''}`, panel);
+        if (mode === 'summary') {
+          node('p', step.summary, panel);
+          const facts = node('dl', '', panel);
+          node('dt', 'Recibe', facts); node('dd', step.input, facts);
+          node('dt', 'Entrega', facts); node('dd', step.output, facts);
+        } else if (mode === 'code') {
+          node('p', step.summary, panel); codeDetails(step);
+        } else {
+          node('p', step.tutor?.explanation ?? `${step.summary} No se ha preparado una lección para este paso.`, panel);
+          if (step.tutor) {
+            node('p', `Ejemplo: ${step.tutor.example}`, panel);
+            const concepts = node('dl', '', panel);
+            step.tutor.concepts.forEach((concept) => { node('dt', concept.term, concepts); node('dd', concept.meaning, concepts); });
+          }
+          codeDetails(step);
+          const navigation = node('div', '', panel); navigation.className = 'viz-controls';
+          const previous = node('button', 'Anterior', navigation); previous.type = 'button'; previous.className = 'btn'; previous.disabled = selected === 0;
+          node('span', `Paso ${selected + 1} de ${flow.steps.length}`, navigation);
+          const next = node('button', 'Siguiente', navigation); next.type = 'button'; next.className = 'btn'; next.disabled = selected === flow.steps.length - 1;
+          previous.addEventListener('click', () => { selected--; render(); save(); });
+          next.addEventListener('click', () => { selected++; render(); save(); });
+        }
+        if (step.note) node('p', step.note, panel);
+      }
+      function restore(state) {
+        const saved = state?.privateContent;
+        if (saved?.revision !== flow.revision || saved?.title !== flow.title) return;
+        const index = flow.steps.findIndex((step) => step.id === saved.step);
+        if (index >= 0) selected = index;
+        if (modes.includes(saved.mode)) mode = saved.mode;
+      }
+      function save() {
+        const state = { title: flow.title, revision: flow.revision, step: flow.steps[selected].id, mode };
+        window.openai?.setWidgetState?.({ modelContent: state, privateContent: state })?.catch(() => {});
+      }
+      root.querySelectorAll('[data-mode]').forEach((button) => button.addEventListener('click', () => { mode = button.dataset.mode; render(); save(); }));
+      restore(window.openai?.widgetState);
+      window.addEventListener('openai:set_globals', (event) => { restore(event.detail?.globals?.widgetState); render(); });
+      render();
+    })();
+  </script>
+</section>
