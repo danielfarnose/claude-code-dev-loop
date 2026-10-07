@@ -141,15 +141,18 @@ read-only summary.
 
 ### Understand a project without starting development
 
+Open the repository you want to understand and start Tutor mode:
+
 ```text
-Claude: /squad:explain how an invoice is saved
-Codex:  $squad:codex-explain how an invoice is saved
+Codex:  $squad:codex-explain --tutor
+Claude: /squad:explain --tutor
 ```
 
 Squad traces the active repository and gives you a clickable map: **Qué hace** explains the
 steps; **Código y agentes** reveals the actual file, function/type, source lines and runtime
-agent when one exists. Add `--tutor` to learn step by step, with Anterior/Siguiente, examples
-and concepts from that project's language. Start simple and unfold the code as needed.
+agent when one exists. **Tutor** guides you step by step, with Anterior/Siguiente, examples
+and concepts from the active project's programming languages. Start simple and unfold the
+code as needed. You can name a flow after the command to focus the explanation.
 
 Code runs also deliver a small map of the flow they changed, reusing planning and QA evidence.
 It uses Visualize when available and self-contained HTML otherwise. It works across projects
