@@ -1,6 +1,6 @@
 {
   "name": "squad",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A dual-host development loop for Codex and Claude: plan, implement, independently verify, learn, and merge.",
   "author": {
     "name": "danielfarnose",
@@ -34,7 +34,8 @@
     "defaultPrompt": [
       "Use $squad:codex-run on this task.",
       "Use $squad:codex-run to resume the active run.",
-      "Use $squad:codex-patrol to find bugs."
+      "Use $squad:codex-patrol to find bugs.",
+      "Use $squad:codex-explain --tutor to understand this project."
     ],
     "brandColor": "#D97757"
   }
