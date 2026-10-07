@@ -139,6 +139,23 @@ squad prints the route it chose, creates the worktree and BOARD, then moves the 
 roles required by its risk and ambiguity. Use `resume` after an interruption and `status` for a
 read-only summary.
 
+### Understand a project without starting development
+
+```text
+Claude: /squad:explain how an invoice is saved
+Codex:  $squad:codex-explain how an invoice is saved
+```
+
+Squad traces the active repository and gives you a clickable map: **Qué hace** explains the
+steps; **Código y agentes** reveals the actual file, function/type, source lines and runtime
+agent when one exists. Add `--tutor` to learn step by step, with Anterior/Siguiente, examples
+and concepts from that project's language. Start simple and unfold the code as needed.
+
+Code runs also deliver a small map of the flow they changed, reusing planning and QA evidence.
+It uses Visualize when available and self-contained HTML otherwise. It works across projects
+and languages, requires no extra API key, and does not start the app, its tests or a WF review.
+See [the shared explanation contract](docs/flow-explainer.md).
+
 ### Recommended: build a knowledge graph of your project
 
 Install [graphify](https://github.com/Graphify-Labs/graphify) and run `/graphify .` once at the
@@ -654,6 +671,7 @@ squad/
 │   └── legal.md        # @legal — renders the legal templates for THIS project, asks only what the repo cannot answer
 ├── commands/
 │   ├── run.md           # /squad:run — the ONLY loop trigger (routing + resume | status)
+│   ├── explain.md       # /squad:explain — flow/code map and optional tutor, no development run
 │   ├── patrol.md        # /squad:patrol — bug hunt → tickets → auto-fix P1
 │   ├── board.md         # /squad:board — one-way Trello mirror of the BOARD (optional)
 │   └── launch.md        # /squad:launch — go-live checklist + audit; runs @legal when no legal texts
@@ -661,12 +679,14 @@ squad/
 │   ├── agent-or.sh            # @developer and @qa over OpenRouter (--check before the first agent)
 │   ├── launch-audit.sh        # ~10 s curl audit of a live domain (headers, robots, 404, meta, OG, favicon, weight)
 │   ├── legal-render.mjs       # render a legal template from legal-answers.json (--check self-test)
+│   ├── flow-explainer.mjs     # source-verified interactive map (fragment or standalone, zero deps)
 │   ├── trello-sync.mjs        # push BOARD.md → Trello (node, zero deps; --dry-run = check)
 │   ├── trello-attach.mjs      # upload @qa evidence to the card (idempotent by name)
 │   ├── worktree.sh            # serial per-run worktree (new|review|list|merge|clean, cap 1)
 │   └── worktree-selftest.sh   # 32 assertions for worktree.sh on a throwaway repo
 ├── skills/
 │   ├── codex-run/             # Codex adapter; distinct name avoids shadowing Claude /run
+│   ├── codex-explain/         # interactive workflow/code explainer and optional tutor
 │   ├── codex-patrol/          # Codex adapter for autonomous patrol
 │   ├── codex-board/           # Codex adapter for Trello sync
 │   ├── codex-security-audit/  # Codex entry point for the manual security role
@@ -676,17 +696,19 @@ squad/
 ├── templates/
 │   ├── squad.md         # the per-project contract template
 │   ├── ticket.md        # ticket template (product first, <60s, 3-5 criteria)
+│   ├── flow-explainer.html    # shared map, code and tutor interaction
 │   ├── launch-checklist.md    # go-live checklist copied into the project by /squad:launch
 │   ├── launch-playbook.md     # the long why: order, traps, lawyer-style review, smoke test (Spanish)
 │   └── legal/                 # generic Legal Notice · Privacy · Terms · Guidelines ({{VARS}}, IF blocks, [[WRITE]])
 ├── docs/
+│   ├── flow-explainer.md # project/language-agnostic explanation and code references
 │   └── flow-review.md   # HTML, entry points, local Supabase sessions and flow video
 └── examples/            # what a run leaves behind: a board and one rejected ticket
 ```
 
 ## Shipped and optional skills
 
-The plugin ships six skills. `codex-run`, `codex-patrol`, `codex-board` and
+`codex-run`, `codex-explain`, `codex-patrol`, `codex-board` and
 `codex-security-audit` are the native Codex surface; their names intentionally differ from the
 Claude commands so Claude's `/squad:*` command discovery cannot be shadowed. `inspect-project` and
 `recording-learnings` are shared by both hosts.

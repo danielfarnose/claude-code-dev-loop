@@ -50,6 +50,14 @@ summary in that ticket's BOARD Notes and attaches video + approved HTML + report
 card using the existing scripts and Codex credentials. Mark it done only after QA, human
 acceptance and required delivery. No new role, paid runner or Claude runtime is needed in Codex.
 
+## Interactive explanation at close
+
+Follow `PLUGIN_ROOT/docs/flow-explainer.md` for the affected code flow's closing map. Use the
+existing architect trace, developer's final refs and QA's existing review; this adds no WF ticket,
+video or gate. Read the available Visualize skill for inline delivery, or show the standalone
+HTML when unavailable. Tutor is available when the user asks to learn the active project's code
+and language; do not turn routine close into a long course.
+
 ## Launch a role
 
 For each `@pm`, `@architect`, `@developer`, `@qa`, or `@security` call:

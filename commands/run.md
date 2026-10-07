@@ -173,6 +173,10 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    The architect maps every affected entry point and prepares the flow doc + clickable HTML
    alongside the tickets; on R0 you do it. Record the flow IDs/paths and HTML review in BOARD.
    Purely internal work records `Flows: n/a — <reason>` and `HTML review: n/a`.
+   For any code change, also read `${CLAUDE_PLUGIN_ROOT}/docs/flow-explainer.md` and include it
+   in the relevant role tasks now: reuse the architect's trace, update source refs in development,
+   and check them in existing QA. Its closing explanation is separate from this planning HTML
+   and applies to internal code too; it adds no approval or WF requirement.
 0d. **WF is opt-in, in both Claude and Codex.** Default `WF: off`. An explicit request such as
    "prueba con WF", "test with WF", or `--wf` sets `WF: requested`; record the instruction.
    Merely mentioning a workflow, changing UI, `--full`, or `--video` does not enable it.
@@ -342,6 +346,13 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
       `gate: deferred` → `done` with the note `gate deferred → <closing-ticket>` (honest about what was
       verified). Next ticket.
 3. Implementation queue empty → keep BOARD active until the closing checks finish.
+   **Interactive explanation:** for code changes, follow
+   `${CLAUDE_PLUGIN_ROOT}/docs/flow-explainer.md`. Reuse/update the affected flow's map: the
+   architect verifies callers/consumers, developer updates final source refs, and QA checks
+   accuracy during the existing code review (lead handles R0). Show Qué hace / Código y agentes;
+   provide Tutor when requested for the active project's language. This is documentation, not
+   another gate, approved prototype or implicit WF/video request. Prepare/update refs before
+   final QA, and retain the map with the flow docs at closing.
 3b. **Final WF ticket — only with `WF: requested`.** With all its dependencies `done`, move
    the final `Kind: flow-review` ticket `ready → qa`. Follow `docs/flow-review.md`: freeze the
    final commit, invoke independent @qa in **Flow close** mode with the final ticket plus all
@@ -371,6 +382,9 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
       explicit path: `git add <BOARD.md> <tickets> <flow-artifacts>` +
       `git commit -m "chore(run): board and tickets for RUN-…"`. By explicit path, never `-A`
       (the bootstrap symlinks show up as untracked by design).
+      Include the affected flow's explanation JSON/standalone HTML by explicit path and link it
+      in BOARD Notes. Keep an inline fragment in the host's permitted durable location when
+      Visualize is available; reuse the same source evidence for both renderings.
    b. `bash ${CLAUDE_PLUGIN_ROOT}/scripts/worktree.sh merge <repo> <run-id> <base>` — it's `--ff-only`. If
       it refuses (the base moved), follow its instruction: `git rebase <base>` in the worktree →
       **re-run the gate and step 3b on the new version** → merge again. Never merge without ff: it would put code into the base that
@@ -384,6 +398,8 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    commits, iterations, learnings, flow/PM verdicts, persistent report/video links, Trello delivery
    status and card links, Google OAuth
    coverage where applicable, and whether it merged or not.
+   Show the interactive affected-flow map using Visualize when available, or link/open its
+   standalone HTML. Pure status/resume queries do not regenerate an already accurate map.
 
 ## /squad:run resume
 
