@@ -21,6 +21,12 @@ gate, require human approval, create a video or authorize publication.
   are needed solely for a small map. On explain-only requests, the architect/lead traces code
   read-only; report gaps explicitly instead of launching app tests to manufacture evidence.
 
+For an explain-only architect call, explicitly select **Explain-only mode** in
+`agents/architect.md` and supply this guide plus the exact repo/scope. Its optional project
+orientation replaces the normal mandatory contract and ticket-planning output in this mode
+only. A closing map during a development run reuses that run's normal verified trace; it does
+not change the development roles' contract or ticket requirements.
+
 `actor` identifies the human, component or process that actually runs the step. `agent` is a
 runtime agent used by that project, or `null` for a deterministic/human step. These are distinct
 from Squad's architect/developer/QA roles; do not assign those development roles as runtime

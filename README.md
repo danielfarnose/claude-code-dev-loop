@@ -217,9 +217,12 @@ flowchart TD
 | `@qa` | Reviews the frozen commit; in opt-in **Flow close** mode, verifies the final workflow ticket, including coherence and business logic. Returns `APPROVED` or `REJECTED`. | Leaves no product-code changes. |
 | `@security` | Audits the project's declared threat model. | Reports and files tickets; never fixes. |
 
-Every role has a mandatory **Step 0**: read the current project's `.claude/squad.md` — stack,
+In development runs, every role has a mandatory **Step 0**: read the current project's
+`.claude/squad.md` — stack,
 quality bar, paths, verification command, forbidden zones. **Without `squad.md` the agent STOPS
 and says so.** It never guesses. (`inspect-project` writes that file for a new repo.)
+The architect's explicit **Explain-only mode** reads the active project's code without requiring
+that contract or writing implementation tickets.
 
 Two properties do most of the work:
 

@@ -10,7 +10,10 @@ Resolve `PLUGIN_ROOT` as the absolute path two directories above this skill dire
 `PLUGIN_ROOT`, and `$ARGUMENTS` means the user's requested flow and optional `--tutor`.
 
 Use native Codex subagents for a bounded architect trace when helpful, with
-`PLUGIN_ROOT/agents/architect.md`, the exact repository/scope and a read-only responsibility.
+`PLUGIN_ROOT/agents/architect.md`, the exact repository/scope and the explicit instruction
+**Explain-only mode**. Supply the absolute `PLUGIN_ROOT/docs/flow-explainer.md` path. This mode
+uses the architect's read-only trace contract, with project orientation optional and no tickets;
+do not invoke its normal development-planning mode for an explanation request.
 Do not start `codex-run`, install a runtime or require a project contract for an explanation.
 Read the available Visualize skill before rendering inline; without it, use the shared
 standalone renderer. Both versions explain the same project/code evidence.
