@@ -64,19 +64,19 @@
         } else if (mode === 'code') {
           node('p', step.summary, panel); codeDetails(step);
         } else {
-          node('p', step.tutor?.explanation ?? `${step.summary} No se ha preparado una lección para este paso.`, panel);
-          if (step.tutor) {
-            node('p', `Ejemplo: ${step.tutor.example}`, panel);
-            const concepts = node('dl', '', panel);
-            step.tutor.concepts.forEach((concept) => { node('dt', concept.term, concepts); node('dd', concept.meaning, concepts); });
-          }
-          codeDetails(step);
           const navigation = node('div', '', panel); navigation.className = 'viz-controls';
           const previous = node('button', 'Anterior', navigation); previous.type = 'button'; previous.className = 'btn'; previous.disabled = selected === 0;
           node('span', `Paso ${selected + 1} de ${flow.steps.length}`, navigation);
           const next = node('button', 'Siguiente', navigation); next.type = 'button'; next.className = 'btn'; next.disabled = selected === flow.steps.length - 1;
           previous.addEventListener('click', () => { selected--; render(); save(); });
           next.addEventListener('click', () => { selected++; render(); save(); });
+          node('p', step.tutor?.explanation ?? `${step.summary} No se ha preparado una lección para este paso.`, panel);
+          if (step.tutor) {
+            node('p', step.tutor.example, panel);
+            const concepts = node('dl', '', panel);
+            step.tutor.concepts.forEach((concept) => { node('dt', concept.term, concepts); node('dd', concept.meaning, concepts); });
+          }
+          codeDetails(step);
         }
         if (step.note) node('p', step.note, panel);
       }
