@@ -66,6 +66,13 @@ graph is a snapshot of the main repo: confirm in the real code before citing a l
 1. **`test-driven-development`** — whenever you implement logic. Tests first, with the stack's runner
    (`squad.md` says which). UI/render: test what is testable (parse, render to string/buffer) and
    verify the rest by running it.
+   **Start from the ticket's `## Test contract`.** Write the `T-NN` tests first, with the exact
+   names and at the paths the contract gives, watch them fail, implement, make them green with the
+   contract's `Run:` line. Flip each line to `[x]` in the ticket as it goes green — that tick is
+   what the operator sees on the Trello card's "Tests" checklist, so never tick a red one. A test
+   you cannot write as specified (wrong path, impossible setup): write the closest one that proves
+   the same behaviour and note `Assumption:` — never drop it silently. The contract is the floor,
+   not the ceiling: a case you discover while coding gets its own test too.
 2. **`ponytail`** — write **the minimum that works**; reuse what already exists before creating; no
    premature abstractions. Before closing, run the `/ponytail-review` eye over your diff. If the
    skill is not installed, follow its YAGNI ladder anyway.
@@ -160,5 +167,6 @@ read it as overflowed scope. That way it reviews your change **in isolation** (`
 reason — never rebase.
 
 ## Output
-List of files created/modified · what you did (3-5 lines) · how you tested it (tests added + the
-verification commands with their **real result**) · the **commit hash**.
+List of files created/modified · what you did (3-5 lines) · how you tested it (one line per
+`T-NN` with its real result, the extra tests you added, and the verification commands with their
+**real result**) · the **commit hash**.

@@ -1,6 +1,6 @@
 {
   "name": "squad",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A dual-host development loop for Codex and Claude: plan, implement, independently verify, learn, and merge.",
   "author": {
     "name": "danielfarnose",

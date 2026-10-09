@@ -4,11 +4,13 @@
 // next sync overwrites it) — so there is never a second source of truth, and never drift.
 // Usage: node trello-sync.mjs <BOARD.md> <trello-board-id> [--dry-run]
 //        --dry-run: prints what was parsed and the actions, without calling the API (a free check).
+// Each ticket's `## Test contract` (`<same dir>/<slug>.md`) becomes the card's "Tests" checklist.
 // Credentials: TRELLO_KEY + TRELLO_TOKEN in SQUAD_ENV_FILE, ~/.claude/squad.env, or the shell
 // (the shell wins). The Codex adapter passes ~/.codex/squad.env explicitly. CAREFUL: it is API key + TOKEN — the
 // "Secret" on the Trello page is NOT used (that one is for OAuth).
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
+import { dirname, resolve } from "node:path";
 
 // Credentials without deps: TRELLO_* keys only, never overriding the shell. Host-specific files
 // live outside the replaceable plugin cache; the repo's .env is the clone-and-run-by-hand fallback.
@@ -125,6 +127,28 @@ export function parseTickets(md) {
   return { tickets: [...bySlug.values()], ignored, duplicates, project };
 }
 
+// Test contract → the card's "Tests" checklist. The ticket (`<tickets-dir>/<slug>.md`, next to
+// the BOARD) carries `## Test contract` with one `- [ ] T-NN name — behaviour · kind · path` line
+// per test; the @developer flips `[x]` when it is green. The checklist is how the operator sees,
+// on the same card, which tests the ticket will get and which already pass — no repo needed.
+// Item name = everything up to the first ` · ` (kind/path stay in the ticket).
+export function parseContract(md) {
+  const section = md.split(/^## Test contract\s*$/m)[1]?.split(/^## /m)[0];
+  if (!section) return [];
+  return [...section.matchAll(/^- \[([ xX])\] (T-\d+\b[^·\n]*)/gm)].map((m) => ({
+    name: m[2].trim(),
+    checked: m[1] !== " ",
+  }));
+}
+
+function readContract(dir, slug) {
+  try {
+    return parseContract(readFileSync(resolve(dir, `${slug}.md`), "utf8"));
+  } catch {
+    return []; // no ticket file next to the BOARD (lead-written micro-ticket elsewhere, old run)
+  }
+}
+
 // Deterministic color per project (same name = same color, on any board). The closed type
 // taxonomy (first Theme value of every row — see commands/run.md) gets FIXED semantic colors
 // instead, so `security` is red on every board and every project.
@@ -138,11 +162,31 @@ async function api(method, path, params = {}) {
   for (const [k, v] of Object.entries({ ...auth, ...params })) url.searchParams.set(k, v);
   const res = await fetch(url, { method });
   if (!res.ok) throw new Error(`Trello ${method} ${path}: ${res.status} ${await res.text()}`);
-  return res.json();
+  const body = await res.text();
+  return body ? JSON.parse(body) : null; // DELETE answers with an empty body
+}
+
+const CHECKLIST = "Tests";
+// Idempotent by item name: creates the missing ones, flips the state of the ones that changed,
+// deletes the ones no longer in the contract. A ticket with no contract leaves the card alone.
+async function syncChecklist(cardId, items) {
+  if (!items.length) return;
+  const lists = await api("GET", `/cards/${cardId}/checklists`, { fields: "name", checkItems: "all", checkItem_fields: "name,state" });
+  const list = lists.find((l) => l.name === CHECKLIST) ?? (await api("POST", "/checklists", { idCard: cardId, name: CHECKLIST }));
+  const existing = new Map((list.checkItems ?? []).map((i) => [i.name, i]));
+  for (const it of items) {
+    const state = it.checked ? "complete" : "incomplete";
+    const cur = existing.get(it.name);
+    if (!cur) await api("POST", `/checklists/${list.id}/checkItems`, { name: it.name, checked: String(it.checked) });
+    else if (cur.state !== state) await api("PUT", `/cards/${cardId}/checkItem/${cur.id}`, { state });
+    existing.delete(it.name);
+  }
+  for (const stale of existing.values()) await api("DELETE", `/checklists/${list.id}/checkItems/${stale.id}`);
 }
 
 async function sync(boardFile, boardId, dry) {
   const { tickets, ignored, duplicates, project } = parseTickets(readFileSync(boardFile, "utf8"));
+  for (const t of tickets) t.tests = readContract(dirname(resolve(boardFile)), t.slug);
   const warnings = [
     ...(ignored.length ? [`${ignored.length} rows ignored, unknown status: ${ignored.join(", ")}`] : []),
     ...(duplicates ? [`${duplicates} duplicate slugs in the table (last row wins)`] : []),
@@ -152,7 +196,8 @@ async function sync(boardFile, boardId, dry) {
     console.log(JSON.stringify(tickets, null, 2));
     for (const w of warnings) console.warn(`warning: ${w}`);
     const lbl = project ? ` · label: ${project} (${colorForProject(project)})` : "";
-    console.log(`dry-run: ${tickets.length} tickets parsed${lbl} (no calls to Trello)`);
+    const tests = tickets.reduce((n, t) => n + t.tests.length, 0);
+    console.log(`dry-run: ${tickets.length} tickets parsed · ${tests} contract tests${lbl} (no calls to Trello)`);
     return;
   }
   // The shortlink (the one in the URL, 8 chars) works for GET but NOT as `idBoard` when creating
@@ -197,9 +242,11 @@ async function sync(boardFile, boardId, dry) {
     const ids = [];
     for (const n of [...(project ? [project] : []), ...t.themes]) ids.push(await labelId(n));
     if (!card) {
-      await api("POST", "/cards", { name, desc: t.desc, idList, ...(ids.length && { idLabels: ids.join(",") }) });
+      const fresh = await api("POST", "/cards", { name, desc: t.desc, idList, ...(ids.length && { idLabels: ids.join(",") }) });
+      await syncChecklist(fresh.id, t.tests);
       created++;
     } else {
+      await syncChecklist(card.id, t.tests);
       if (card.idList !== idList || card.name !== name || card.desc !== t.desc) {
         await api("PUT", `/cards/${card.id}`, { name, desc: t.desc, idList });
         updated++;

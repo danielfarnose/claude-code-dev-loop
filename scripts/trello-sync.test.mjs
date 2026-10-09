@@ -3,7 +3,7 @@
 // operator, not a dev) and where the board labels come from.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { describe as buildDesc, parseTickets, colorForProject } from "./trello-sync.mjs";
+import { describe as buildDesc, parseTickets, parseContract, colorForProject } from "./trello-sync.mjs";
 
 const header = ["ticket", "title", "theme", "prio", "status", "iter", "commit", "notes"];
 const row = (notes, theme = "") => ["t-1", "Title", theme, "P1", "done", "2/3", "abc1234", notes];
@@ -75,4 +75,29 @@ test("a BOARD with no Theme column still works (header-driven)", () => {
 `);
   assert.equal(tickets.length, 1);
   assert.deepEqual(tickets[0].themes, []);
+});
+
+test("the ticket's Test contract becomes checklist items: name up to the first ' · ', [x] = checked", () => {
+  const items = parseContract(`# [Portal] Download
+
+## Acceptance criteria
+- [ ] not a test
+
+## Test contract
+- [x] T-01 pdf_downloads — an issued invoice downloads as a PDF · integration · src/portal/invoices.test.ts · AC-01
+- [ ] T-02 other_tenant_404 — someone else's invoice returns 404 · unit · src/portal/invoices.test.ts
+- Run: npx vitest run src/portal/invoices.test.ts
+- Blocking: any T-NN red
+
+## Technical notes
+- [ ] T-99 not in the contract section
+`);
+  assert.deepEqual(items, [
+    { name: "T-01 pdf_downloads — an issued invoice downloads as a PDF", checked: true },
+    { name: "T-02 other_tenant_404 — someone else's invoice returns 404", checked: false },
+  ]);
+});
+
+test("a ticket without a Test contract yields no checklist", () => {
+  assert.deepEqual(parseContract("# Title\n\n## Technical notes\n- Files: x\n"), []);
 });
