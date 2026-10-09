@@ -191,6 +191,7 @@ flowchart TD
     R -- "R1 / R3 / R6" --> A["@architect<br/>plan → tickets"]
     R -- "R0 trivial" --> P
     A --> P{"user-facing change?"}
+    A -. "T-NN test contract" .-> D
     P -- "yes" --> V["entry-point map + HTML<br/>human approves preview"]
     P -- "no" --> D
     V --> D["@developer<br/>TDD + gate + commit"]
@@ -215,9 +216,9 @@ flowchart TD
 | Role | Responsibility | Boundary |
 |------|----------------|----------|
 | `@pm` | Discovers the intent first — interviews the human through the lead, one decision at a time with a recommendation — then writes acceptance criteria as `AC-NN Given/When/Then`. | No code and no technical design. |
-| `@architect` | Turns the outcome and real code into the smallest executable ticket. | Writes tickets, never feature code. |
-| `@developer` | Implements one ticket with TDD, runs the gate and commits it. | Cannot approve its own work. |
-| `@qa` | Reviews the frozen commit; in opt-in **Flow close** mode, verifies the final workflow ticket, including coherence and business logic. Returns `APPROVED` or `REJECTED`. | Leaves no product-code changes. |
+| `@architect` | Turns the outcome and real code into the smallest executable ticket, with a **test contract** (`T-NN` names, behaviour, paths, run command) reviewed for coverage. | Writes tickets, never feature code — and never the test code. |
+| `@developer` | Writes the contract's tests first, implements one ticket with TDD, runs the gate and commits it. | Cannot approve its own work. |
+| `@qa` | Runs the contract by name (`T-NN PASS\|FAIL`), judges the criteria on its own and hunts beyond the contract; reviews the frozen commit; in opt-in **Flow close** mode, verifies the final workflow ticket, including coherence and business logic. Returns `APPROVED` or `REJECTED`. | Leaves no product-code changes. |
 | `@security` | Audits the project's declared threat model. | Reports and files tickets; never fixes. |
 
 In development runs, every role has a mandatory **Step 0**: read the current project's
@@ -414,6 +415,14 @@ match, warns and refuses to restore on its own.
 - [ ] A tampered backup is never restored automatically.
 - [ ] A regression test fails if the verification is removed.
 
+## Test contract
+- [ ] T-01 restore_verifies_integrity — a restore checks the hash before touching anything · unit · src/backup/restore.test.ts
+- [ ] T-02 tampered_backup_warns — a modified file shows a warning naming what happened · unit · src/backup/restore.test.ts
+- [ ] T-03 tampered_backup_never_auto_restores — no restore without the human's confirmation · unit · src/backup/restore.test.ts
+- [ ] T-04 intact_backup_still_restores — the existing happy path is untouched · regression · src/backup/restore.test.ts
+- Run: `npx vitest run src/backup/restore.test.ts`
+- Blocking: any T-NN red
+
 ## Technical notes
 - Files: `src/backup/restore.ts`, `src/backup/integrity.ts`
 - Verification: `npm run verify`
@@ -423,6 +432,23 @@ match, warns and refuses to restore on its own.
 
 `Risk: high` is not decoration: the lead reads it and raises `@qa` to a stronger model, then runs
 `@security` once before the run closes.
+
+**The test contract is the hand-off.** The `@architect` names the tests — `T-NN`, expected
+behaviour, kind, path, one command that runs them in isolation, what counts as a blocking
+failure — and reviews the list before delivering: every criterion has a test, errors and edge
+cases are in, there is a regression test when existing behaviour is touched. It never writes
+the test code: if it did, `@developer` and `@qa` would inherit the same wrong assumptions. The
+`@developer` writes exactly those tests first and ticks `[x]` as each goes green; the `@qa` runs
+them by name, reports `T-NN PASS|FAIL`, and then hunts for what the contract missed — those
+findings are tagged `(beyond contract)`, and the split tells you whether the contracts are
+doing their job. The hypothesis, stated so it can be checked: contracts cut the REJECTEDs
+caused by *forgotten requirements*; they do not remove implementation bugs or what an
+independent reviewer finds. The number to watch is the **first-pass rate** — tickets APPROVED
+at `Iter 1/3` over tickets done — which the lead prints at every close.
+
+Those ticks are also what the Trello card shows: the sync mirrors the contract as the card's
+**"Tests" checklist** (`3/4` on the card front, one item per `T-NN`, checked when green), so
+you see on the same card what the ticket is, which tests it will get and which already pass.
 
 ### Discovery before requirements — the PM interviews, the human decides
 
@@ -496,6 +522,11 @@ Most of the design here exists because something was measured, not because it so
 - **Accumulated rejection reasons.** From iteration 2 on, `@qa` receives every previous reason and
   tags each `(nuevo)`/`(reincidente)`. A repeat offender means fix-A-breaks-B oscillation. The
   BOARD's `Iter` column is a free rejection metric.
+- **Test contract in the ticket.** The `@architect` lists the `T-NN` tests (names, behaviour,
+  path, run command) and reviews coverage before the developer starts, so the cases are handed
+  over instead of rediscovered. Every re-launched developer after a "forgotten requirement"
+  REJECTED is a full agent paid twice; the first-pass rate at close is the number that says
+  whether the contract is earning its lines.
 
 ### Model engine
 

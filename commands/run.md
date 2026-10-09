@@ -80,8 +80,11 @@ flags and counts go in the following notes, not in the first one.
 node ${CLAUDE_PLUGIN_ROOT}/scripts/trello-sync.mjs <BOARD.md> <board-id>
 ```
 
-One-way push, idempotent and cheap (it only touches the cards that changed). Run it as soon as you
-save the BOARD: when registering the tickets, when launching each agent, on every verdict and at
+One-way push, idempotent and cheap (it only touches the cards that changed). It also reads each
+ticket's `## Test contract` (`<tickets-path>/<slug>.md`, next to the BOARD) and mirrors it as the
+card's **"Tests" checklist** — one item per `T-NN`, checked when the ticket line is `[x]` — so the
+operator sees on the same card what will be tested and what is already green, without opening
+the repo. Run it as soon as you save the BOARD: when registering the tickets, when launching each agent, on every verdict and at
 closing. That way the operator sees the cards move from list to list live instead of all appearing at
 the end. The agents do NOT touch Trello — the one dragging the cards is you, writing the BOARD. If the
 sync fails, do NOT stop the run: report the error in one line and continue (the BOARD is the truth,
@@ -196,6 +199,11 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    decision. Never start the chain knowing the last step cannot run.
 1. @architect (task or pm spec) → 1..N ordered tickets (big task = split with dependencies).
    Register them all in the BOARD as `ready`, in order. Phase `implementing`.
+   **Every ticket carries a `## Test contract`** (`T-NN` name · behaviour · kind · path, plus
+   `Run:` and `Blocking:`) that the architect reviewed for coverage before delivering. A ticket
+   without one goes back to the @architect — it is the hand-off the developer builds from and
+   the list the @qa runs by name; a contract hands the developer the cases up front instead of
+   letting it rediscover them, which is where most "forgotten requirement" REJECTEDs come from.
    **R0 skips this step**: you write the micro-ticket yourself, in the same tickets path.
    With `WF: requested`, the architect (lead on R0) adds the final ticket using
    `templates/ticket.md`: `Kind: flow-review`, `Type: logic`, `QA: video`, `Flow:` and
@@ -222,8 +230,8 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    - `--wf` / "prueba con WF" requests one final flow-review ticket with video at step 3b.
      Link involved tickets to the flow doc; `--wf` alone does not request per-ticket video.
 1b. **Review checkpoint — BEFORE touching code.** Push to Trello and show the operator the queue
-   in a compact table (`# · ticket · what it does in one line · chain/gate`, plus the `AC-NN` each
-   ticket covers when the run has a spec), plus the
+   in a compact table (`# · ticket · what it does in one line · chain/gate · tests` — `tests` is
+   the contract's count, e.g. `5`, plus the `AC-NN` each ticket covers when the run has a spec), plus the
    `Route:` line, the hard data the architect verified and the gate's baseline. Ask "do I start or do I
    adjust scope/order?" and **wait for their answer**. For user flows, open the clickable HTML
    and entry-point decisions in this same checkpoint, and record the approved HTML revision in
@@ -271,8 +279,10 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    - Note in the BOARD which engine ran each verdict (`engine: or/gpt-5.6-sol` or
      `engine: fallback sonnet`) — without that you can't compare quality later.
 
-   a. BOARD: → `in_progress`. @developer (ticket path) → implements + runs the gate from
-      `squad.md` + commits ONLY what belongs to the ticket. If its report carries `Assumption:`
+   a. BOARD: → `in_progress`. @developer (ticket path) → writes the contract's `T-NN` tests first,
+      implements + runs the gate from `squad.md` + commits ONLY what belongs to the ticket, and
+      ticks `[x]` in the ticket each `T-NN` that went green (push the BOARD afterwards: the
+      ticks become the card's checklist). If its report carries `Assumption:`
       lines (product behavior the ticket didn't cover), copy them into the BOARD's Notes and show
       them with the verdict — the human reviews assumptions, they don't answer questionnaires mid-run.
    a2. **dev‖qa pipeline — it's the default, not an optional optimization.** The @qa doesn't need the
@@ -341,6 +351,11 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
       chain's `done · gate deferred` ones ended up WITHOUT the heavy gate.
       **`REJECTED (design):`** (the defect is in the TICKET, not in the code) → go back to the
       @architect to fix the ticket and only then to the developer. It consumes an iteration all the same.
+   The @qa's verdict lists `T-NN PASS|FAIL` and its `(beyond contract)` findings: copy a one-line
+      summary into the BOARD Notes (`contract 5/5 · 1 beyond`), and on a REJECTED say which side
+      it came from — a `T-NN FAIL` is a forgotten-by-developer case, a `(beyond contract)` one is a
+      case the architect's contract missed. That split is what tells you whether the contracts are
+      working.
    d. APPROVED → skill `recording-learnings` (task gotchas + causes of the intermediate REJECTEDs;
       "learnings: 0" is valid). BOARD: → `done` + hash + Iter. Ticket with
       `gate: deferred` → `done` with the note `gate deferred → <closing-ticket>` (honest about what was
@@ -395,7 +410,9 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    that's on purpose.
 5. An active worktree with `Next step: merge + clean` is still a pending close even if its
    queue is idle; no active worktree after merge + clean means close completed. Report: route used, done/blocked tickets,
-   commits, iterations, learnings, flow/PM verdicts, persistent report/video links, Trello delivery
+   commits, iterations (**and the first-pass rate: tickets APPROVED at `Iter 1/3` over tickets
+   done** — the one number the test contract is meant to move; with the REJECTED split by
+   `T-NN` vs `(beyond contract)`), learnings, flow/PM verdicts, persistent report/video links, Trello delivery
    status and card links, Google OAuth
    coverage where applicable, and whether it merged or not.
    Show the interactive affected-flow map using Visualize when available, or link/open its

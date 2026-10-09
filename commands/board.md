@@ -10,7 +10,11 @@ $ARGUMENTS
 1. Read `.claude/squad.md §Paths`: the BOARD.md path and the `Trello: board <id>` line. Either one
    missing → STOP and say how to configure it (add the line in §Paths; credentials in step 3).
 2. Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/trello-sync.mjs <BOARD.md path> <board-id>` (pass `--dry-run` if
-   requested) and report the script's summary (created/updated/archived).
+   requested) and report the script's summary (created/updated/archived). Each card also gets a
+   **"Tests" checklist** mirrored from the ticket's `## Test contract` (`<tickets-path>/<slug>.md`,
+   next to the BOARD): one item per `T-NN`, checked when the ticket line is `[x]` — that is where
+   the operator sees which tests the ticket will get and which are already green. `--dry-run`
+   prints them too.
 3. If it fails on credentials: tell the human to copy the plugin's `.env.example` to
    `~/.claude/squad.env` (Claude) or `~/.codex/squad.env` (Codex) and fill it in THEMSELVES (API key + Token from https://trello.com/power-ups/admin;
    the "Secret" on that page is NOT used — it's for OAuth). The `.env` is gitignored. NEVER ask

@@ -89,6 +89,14 @@ it proves the tests aren't tautological.
 **This is NOT permission to review less.** A UI ticket gets mounted all the same, and no ticket
 skips verification for being «small». What changes is **which instrument**, never **how much**.
 
+- **Test contract first (`## Test contract` in the ticket).** For each `T-NN`: confirm the test
+  exists **by name** at the contract's path (a renamed or missing one is `FAIL: missing`), run the
+  contract's `Run:` line and read the real result. A line ticked `[x]` that is red is a blocking
+  reason on its own (the tick is what the operator sees on the card). Apply the mutation above to
+  at least one contract test of a logic ticket. **The contract is the developer's map, not your
+  boundary:** judge every acceptance criterion on its own and hunt for the cases the architect
+  did not list — a defect you find outside the contract is reported as `(beyond contract)`, and
+  it is the finding that justifies your existence.
 - **Hard gate: the command from `squad.md §Verification`.** It's the SAME truth the `@developer`
   ran; if it doesn't pass green, it's REJECTED.
 - The **extra checks** that `squad.md` marks for the task type (e.g.: startup smoke if it touches
@@ -146,6 +154,7 @@ If the lead handed you reasons from previous rounds, mark each reason of yours a
 `(recurring)` — recurring = the previous fix didn't resolve it or broke it again.
 
 Below, the evidence. If the ticket's criteria carry IDs (`AC-02`, from a @pm spec), it STARTS with
-one line per criterion — `AC-01 PASS` · `AC-03 FAIL: expected <…> · actual <…>` — then the
-commands you ran and their real result. The question is never "does this look good?", it's "does
+one line per criterion — `AC-01 PASS` · `AC-03 FAIL: expected <…> · actual <…>` — then one line
+per contract test — `T-01 PASS` · `T-04 FAIL: missing` · `T-05 FAIL: <actual>` — then the
+findings `(beyond contract)`, then the commands you ran and their real result. The question is never "does this look good?", it's "does
 this satisfy the agreed contract?".

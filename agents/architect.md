@@ -133,8 +133,28 @@ it isn't finished:
   doesn't fit on one screen, split it (see "Big task" above) or move the detail to a linked doc.
 - **3 to 5 acceptance criteria**, each answerable yes/no. No more (nobody reads them all) and no
   fewer (not enough for the @qa to verify).
+- **A `## Test contract`** (below) covering every criterion. A ticket without it is not finished.
 - **Title** in `[Area] Expected result` format — it's understood without opening the card. Never
   "Fix X" / "Improve Y" without saying what changes.
+
+**Test contract — the section between the criteria and the technical notes.** The developer
+no longer has to discover on their own which cases matter: you name them. 3 to 8 lines, one
+per test, `- [ ] T-NN <test_name> — <expected behaviour> · <unit|integration|e2e|regression> ·
+<test path> [· AC-NN]`, plus `Run:` (ONE command that runs only these tests, in isolation, with
+the stack's runner from `squad.md`) and `Blocking:` (what counts as a blocking failure; default
+"any T-NN red"). Names and locations, **never test code**: if you write the tests, the
+@developer and the @qa inherit your wrong assumptions together. Reuse the project's existing
+test files and naming (look at the neighbouring test before naming a new file).
+
+Before delivering, run this **coverage review** over each ticket and fix it until every answer
+is yes (the answers do NOT go in the ticket — the contract is the answer):
+1. Does every acceptance criterion have at least one T-NN? (with a spec: every `AC-NN` the ticket covers)
+2. Are the relevant error and edge cases covered — provider failure, empty input, a repeated request?
+3. Is there a regression test when the change touches behaviour that already works?
+4. Can the contract run in isolation (`Run:` — seconds, not the full gate)?
+5. Is it clear what a blocking failure is (`Blocking:`)?
+The @qa checks the criteria on its own and hunts beyond the contract; the contract lowers the
+rejections for *forgotten* requirements, it does not replace the independent review.
 
 In `Technical notes` goes: real files to touch · command from `squad.md §Verification` ·
 **QA evidence**: `QA: screenshots` (default) or `QA: video` — only if the lead asked for it
