@@ -339,7 +339,7 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
       BOARD and dispatch it when it delivers. Its commit will no longer be HEAD, so the amendment goes in
       ONE new commit `fix(<ticket>): …` — the same rule that already governs the rejection of a chain
       closing.
-      A ticket that got hard escalates the model of the next agent (fable, then opus — see
+      A failed ticket escalates the model of the next agent (opus, then fable — see
       §Resilience). On iteration ≥2 hand it ALL the reasons
       from the previous rounds (the @qa marks them `(new)`/`(recurring)`; recurring = oscillation
       → note it in the BOARD's Notes). Amendment: `git commit --amend` ONLY while its commit is still
@@ -449,14 +449,14 @@ whether work was left unmerged. Do NOT modify anything.
   (in the call; do NOT edit the agent's frontmatter). First quota failure in the run → the
   REST of the run uses `opus` directly in the calls to fable agents, and note
   "fable exhausted → opus" in the BOARD's Active run (so `resume` doesn't trip again).
-- **A ticket gets hard → escalate the model of the NEXT agent that touches it.** "Hard" =
-  ≥2 REJECTEDs on the same ticket, any `REJECTED (design)`, a partial delivery from the
-  developer, or the last iteration (3/3). Ladder, override in the call (never the frontmatter):
-  1st retry → `fable`; if that agent fails again (REJECTED, partial delivery or engine failure)
-  → 2nd retry → `opus`. Never kill an agent in flight to relaunch it on a better model: escalate
-  the next one. Note the model in the BOARD Notes (`engine: … fable` / `… opus`). The quota rule
-  above still applies: fable exhausted → `opus` directly. This overrides "cheap QA on sonnet":
-  cheap models are for tickets that are going well.
+- **A ticket fails → escalate the model of the NEXT agent that touches it.** "Fails" = a
+  REJECTED (any kind, incl. `REJECTED (design)`), a partial delivery from the developer, or an
+  engine failure. Ladder, override in the call (never the frontmatter): 1st failure → the next
+  agent runs on `opus`; if that one fails again → the following agent runs on `fable`. Never kill
+  an agent in flight to relaunch it on a better model: escalate the next one. Note the model in
+  the BOARD Notes (`engine: … opus` / `… fable`). The quota rule above still applies: fable
+  exhausted → stay on `opus`. This overrides "cheap QA on sonnet": cheap models are for tickets
+  that are going well.
 - No task after the command and no active run in the BOARD: ask me for the task in one line.
 - The run's worktree **is not deleted on a failure**: it's the one that makes `resume` possible. It's only
   cleaned after a successful merge, or by hand with `worktree.sh clean … --force`.
