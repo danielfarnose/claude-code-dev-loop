@@ -177,7 +177,9 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    alongside the tickets; on R0 you do it. Record the flow IDs/paths and HTML review in BOARD.
    Purely internal work records `Flows: n/a — <reason>` and `HTML review: n/a`.
    With an approved mockup, the flow doc carries the **screen inventory** (guide §1 «Mockup
-   contract»): ask the architect for it explicitly, and send back a flow doc that lists what the
+   contract»): capture the real screen today and the mockup's same state FIRST and hand both
+   picture paths to the architect — it has no browser and an inventory read from code misses
+   what is on screen. Ask for the inventory explicitly, and send back a flow doc that lists what the
    mockup adds but not what today's screen must stop showing. Hand every role the project's
    **real state** (`squad.md §Flows`) so UI closes are mounted the way the operator opens the app.
    For any code change, also read `${CLAUDE_PLUGIN_ROOT}/docs/flow-explainer.md` and include it
@@ -317,6 +319,11 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
       **Only one @qa in flight.** If the developer delivers N+1 and N's verdict hasn't
       arrived yet, wait for that verdict before launching N+1's @qa — two reviews at once can't
       be reconciled in the BOARD.
+   b0. **Ticket with a `Mock:` line → look before the QA.** Read the mockup picture and the
+      developer's capture of the same state (one Read each). A visible difference that no
+      human-approved `keep` explains → back to the developer as REJECTED (iteration +1), no QA.
+      Never upload a capture to the tracker or launch the QA on a mockup ticket without having
+      looked at it yourself (`docs/flow-review.md` «Picture against picture»).
    b. BOARD: → `qa`. **In `R0_TRIVIAL` there is no @qa: YOU run the gate.** After the developer's
       commit, run the command from `squad.md §Verification` over the worktree yourself. Green →
       `done`. Red → go back to the developer with the real output (counts as an iteration). That way

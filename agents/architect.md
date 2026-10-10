@@ -118,6 +118,9 @@ Always analyze the real code before planning. Always think like the product's en
   screen today, and fill the flow doc's **screen inventory** — one row per element, including
   every element the screen shows today that the mockup does NOT (`remove` / `move into …`).
   Each `add/change/remove/move` row maps to a ticket and a `T-NN`; removals are tickets too.
+  Build it from the two pictures the lead hands you (real screen capture + mockup), one Read each:
+  every visible block of the real capture is a row. Never mark `keep` on an element the mockup
+  does not draw — that is the human's call; list it under open decisions for the checkpoint.
   Write the mockup's revision in the inventory. If your plan, an entry point or the WF changes
   what the mockup shows, report `MOCK CHANGED: <what>` to the lead instead of adapting quietly —
   the human re-approves. Name the project's real state (guide §1, from `squad.md §Flows`) in the
