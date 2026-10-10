@@ -268,6 +268,12 @@ For user-facing changes, every route follows [flow review](docs/flow-review.md),
 project already has `DESIGN.md`. The architect maps all ways into the affected action and shows
 a clickable HTML before the developer builds it. The map states which accesses stay, change,
 disappear or redirect. It also checks the proposed journey for contradictions and logic errors.
+An approved mockup is a contract on the **whole screen**: the flow doc inventories every element
+the screen shows today and the mockup does not, each one becomes a ticket and a test, the lead
+shows the `added · removed · moved` totals at the checkpoint, the developer reports `Mock:
+matches|differs` and the QA mounts the screen with the project's **real state** (the data the
+app restores on open) and judges the inventory row by row. Added after a run that built every
+addition of a mockup and left on screen what it had removed.
 
 **The final WF test is off by default.** Ask for **"prueba con WF"**, **"test with WF"**, or
 `--wf` to add it. WF means the complete user workflow; its wireframe is the HTML prototype.

@@ -92,6 +92,9 @@ should have caught it).
 - 3-8 is the normal range. More → the intent is too big: say so and propose the split.
 - For user flows, state what changes across all known entry points and what must no longer be
   possible. Cite current-behavior evidence and flag gaps for the architect's entry-point map.
+  With an approved mockup, write the negative criteria from it: what the screen shows today and
+  the mockup does not becomes an `AC-NN … Then <element> is no longer shown / lives under …`.
+  A mockup only lists what it draws; the spec is where what disappears gets said out loud.
   Flag contradictory actions, missing prerequisites and illogical outcomes before planning.
   The lead shows a clickable HTML before implementation. Only an explicit WF test request
   adds a final workflow ticket, real video and human result review (`docs/flow-review.md`).

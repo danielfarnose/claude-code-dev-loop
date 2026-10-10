@@ -114,6 +114,14 @@ Always analyze the real code before planning. Always think like the product's en
   scope; they are not feature code. Include removed/redirected accesses and negative criteria.
   Review coherence and business logic while preparing the HTML: conflicting actions/copy,
   missing prerequisites, dead ends and inconsistent states. `DESIGN.md` is not a flow approval.
+  **Mockup contract (guide §1):** when an approved mockup/HTML exists, read it and the real
+  screen today, and fill the flow doc's **screen inventory** — one row per element, including
+  every element the screen shows today that the mockup does NOT (`remove` / `move into …`).
+  Each `add/change/remove/move` row maps to a ticket and a `T-NN`; removals are tickets too.
+  Write the mockup's revision in the inventory. If your plan, an entry point or the WF changes
+  what the mockup shows, report `MOCK CHANGED: <what>` to the lead instead of adapting quietly —
+  the human re-approves. Name the project's real state (guide §1, from `squad.md §Flows`) in the
+  closing ticket's QA evidence so the chain close mounts the screen the way the operator opens it.
   Only when the lead supplies `WF: requested` ("prueba con WF" / `--wf`), append ONE final
   `[WF]` ticket using the guide: `Kind: flow-review`, `Type: logic`, `QA: video`, `Flow:` and
   `Depends on:` every implementation/setup ticket. Explain the journey, logic checks, expected
@@ -153,6 +161,8 @@ is yes (the answers do NOT go in the ticket — the contract is the answer):
 3. Is there a regression test when the change touches behaviour that already works?
 4. Can the contract run in isolation (`Run:` — seconds, not the full gate)?
 5. Is it clear what a blocking failure is (`Blocking:`)?
+6. With an approved mockup: does every screen-inventory row — added **and removed/moved** — have
+   a ticket and a T-NN, and does a UI test mount the screen with the project's real state?
 The @qa checks the criteria on its own and hunts beyond the contract; the contract lowers the
 rejections for *forgotten* requirements, it does not replace the independent review.
 
