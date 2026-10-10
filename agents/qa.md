@@ -126,7 +126,8 @@ skips verification for being «small». What changes is **which instrument**, ne
   added: the code does what they say, and they don't contradict the spec's `Decisions` (when the
   run has a spec — path from `squad.md §PM`). A contradiction is REJECTED, not a note.
 - **Did it touch unrelated code or something in `squad.md`'s forbidden zones?** → blocking.
-- **Mockup contract (`Flow:` tickets, `docs/flow-review.md §1`):** mount the screen and judge
+- **Mockup contract (`Flow:` tickets, `docs/flow-review.md §1`):** first Read the mockup picture
+  and your capture of the same state side by side and list every visible difference; then judge
   the flow doc's screen inventory row by row — added, changed **and removed/moved**. An element
   the mockup removed that the screen still shows, or a journey that no longer matches the
   approved HTML, is REJECTED (`(beyond contract)` if no T-NN names it; `REJECTED (design)` if

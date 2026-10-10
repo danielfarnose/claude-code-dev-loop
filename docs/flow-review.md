@@ -74,6 +74,31 @@ change · remove · move into <place> | ticket | test`
   row by row: an element the mockup removed and the screen still shows is a REJECTED reason,
   inside or outside the test contract.
 
+### Picture against picture — the only check that counts for a mockup
+
+Measured 2026-10-10, second time in two days: the developer reported `Mock: matches` without
+opening its own capture (the token rule told it not to read images), the architect built the
+inventory from code (no browser) and missed three visible elements and marked three more `keep`
+without asking, and the QA validated the inventory, not the mockup. Every step compared text
+with text; nobody put the screen next to the mockup. The operator saw it in one look.
+
+So, for every ticket with a `Mock:` line:
+- **The inventory starts from two pictures.** The lead captures the real screen today (project
+  capture tool, real state) and the mockup's state for the same screen, and hands both paths to
+  the architect, who reads them (one Read each). Every visible block in the real capture is a row.
+- **`keep` is not an architect's decision.** An element the mockup does not draw is `remove` or
+  `move into …` by default; keeping it needs the human's explicit yes at the checkpoint, written
+  in the row (`keep — operator 2026-10-10: «…»`). An unanswered one is an open decision, not keep.
+- **The developer looks.** On a `Mock:` ticket the image rule is inverted: before closing it Reads
+  the mockup picture and ONE capture per variant it changed (560 and 1280 when both apply) and
+  lists every visible difference. `Mock: matches` without having opened them is a false report.
+- **The lead looks before the QA.** Open the mockup picture and the developer's capture side by
+  side (one Read each). Any visible difference not covered by a human-approved `keep` → straight
+  back to the developer as a REJECTED (counts as an iteration), no QA launched. A minute here
+  saves a full QA round and the operator's trust.
+- **The QA judges the picture first, the list second.** Same two Reads; differences the inventory
+  does not explain are `(beyond contract)` blocking findings.
+
 ### Real state — mount the screen the way the operator opens it
 
 Unit tests and fixtures start from empty state; the operator's app does not. A screen that

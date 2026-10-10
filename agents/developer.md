@@ -127,6 +127,9 @@ tells you nothing new. Measured in RUN-20260803-02: the gate ran **19 times** in
 enough, and a single developer ran it **5**. While you iterate you use the file's test
 (`go test -run TestX ./...`, `npx vitest run <file>`), which also fails faster and with less noise.
 
+**Exception — tickets with a `Mock:` line:** you MUST Read the mockup picture and one capture per
+changed variant before closing, and list the visible differences (`docs/flow-review.md` «Picture
+against picture»). `Mock: matches` without having looked is a false report. Everywhere else:
 **Images: generate the captures WITHOUT reading them.** An image you open with Read stays in your
 context FOREVER and is re-paid on every following turn — measured in RUN-20260808-01: a developer
 read 12 PNGs to self-verify (~30k permanent tokens) and that alone re-paid ~2.4M of cache over its
