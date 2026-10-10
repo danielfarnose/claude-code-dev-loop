@@ -176,6 +176,10 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    The architect maps every affected entry point and prepares the flow doc + clickable HTML
    alongside the tickets; on R0 you do it. Record the flow IDs/paths and HTML review in BOARD.
    Purely internal work records `Flows: n/a — <reason>` and `HTML review: n/a`.
+   With an approved mockup, the flow doc carries the **screen inventory** (guide §1 «Mockup
+   contract»): ask the architect for it explicitly, and send back a flow doc that lists what the
+   mockup adds but not what today's screen must stop showing. Hand every role the project's
+   **real state** (`squad.md §Flows`) so UI closes are mounted the way the operator opens the app.
    For any code change, also read `${CLAUDE_PLUGIN_ROOT}/docs/flow-explainer.md` and include it
    in the relevant role tasks now: reuse the architect's trace, update source refs in development,
    and check them in existing QA. Its closing explanation is separate from this planning HTML
@@ -235,8 +239,10 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    `Route:` line, the hard data the architect verified and the gate's baseline. Ask "do I start or do I
    adjust scope/order?" and **wait for their answer**. For user flows, open the clickable HTML
    and entry-point decisions in this same checkpoint, and record the approved HTML revision in
-   BOARD. This approves the intended behavior; when WF is requested, the human also reviews
-   the real result at step 3b.
+   BOARD. Under the table print the inventory line — `Mock: <rev> · added N · removed N · moved N
+   · unchanged N · uncovered: <rows or none>` — so the human sees what disappears, not only what
+   arrives; an uncovered row goes back to the @architect before the yes. This approves the
+   intended behavior; when WF is requested, the human also reviews the real result at step 3b.
    Changing the scope here is free; after 9
    commits it isn't. If they ask for adjustments → go back to the @architect with them and repeat this checkpoint.
    **R0 skips the ticket-queue checkpoint**, but user-visible changes still need the HTML

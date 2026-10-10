@@ -65,6 +65,9 @@ Hosted Supabase (production edge functions, staging): QA user via the plugin's `
 write here the exact lines: `QA_ACCESS_TOKEN=$(sbauth <project> token)` + any one-time gating
 step (e.g. `sbauth <project> rpc accept_terms '{"version":"..."}'`), user id, never the password.
 Record actual auth setup path and fixture roles; secret VALUES never go in this file.
+Approved mockups: where they live (path), and that the flow doc's screen inventory is the contract.
+Real state: the persisted file/rows the app restores on open (e.g. `brands/<x>/studio.json`,
+a seeded user with history) + the exact copy command QA uses to mount screens with it.
 HTML report + video paths, retained under <main-repo>/.squad-artifacts/<run-id>/<commit>/
 (Git-ignored) before worktree cleanup. The requested WF ticket needs successful-flow video,
 entry-point checks and a review of incoherent behavior/business-logic errors.

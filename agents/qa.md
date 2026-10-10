@@ -79,7 +79,7 @@ mounting the screen doesn't prove what breaking the function does prove, and the
 | the criterion is about… | instrument | what it proves |
 |---|---|---|
 | **logic** — a parser, a guard, a detector, an assembled prompt, a pure function | **break the function** (mutation: invert the condition or revert the fix) and confirm the tests fall · dump the real artifact (the compiled prompt, the written file) | that the defense **bites**. Green on its own doesn't say it |
-| **what the operator sees** — layout, copy in context, a click flow, a state that only exists in the browser | **mount and exercise it**, no exception | that the person in front of the screen sees what the ticket promises |
+| **what the operator sees** — layout, copy in context, a click flow, a state that only exists in the browser | **mount and exercise it**, no exception — with the project's **real state** (`squad.md §Flows`) on a chain close or WF, not only clean fixtures | that the person in front of the screen sees what the ticket promises, opening the app the way they open it |
 | both | both | — |
 
 After the mutation **always revert** (`git checkout -- <file>`) and say it in the evidence: what you
@@ -126,6 +126,13 @@ skips verification for being «small». What changes is **which instrument**, ne
   added: the code does what they say, and they don't contradict the spec's `Decisions` (when the
   run has a spec — path from `squad.md §PM`). A contradiction is REJECTED, not a note.
 - **Did it touch unrelated code or something in `squad.md`'s forbidden zones?** → blocking.
+- **Mockup contract (`Flow:` tickets, `docs/flow-review.md §1`):** mount the screen and judge
+  the flow doc's screen inventory row by row — added, changed **and removed/moved**. An element
+  the mockup removed that the screen still shows, or a journey that no longer matches the
+  approved HTML, is REJECTED (`(beyond contract)` if no T-NN names it; `REJECTED (design)` if
+  the mockup itself went stale — say `MOCK CHANGED`). Clean-state evidence alone does not pass a
+  chain close of a UI change: say which state each capture came from, and `real state: none
+  declared` when `squad.md §Flows` has none.
 - Does it break the project's **quality bar** (`squad.md §Quality bar`)? → blocking.
 - **Do the strings/copy say exactly what the code does NOW?** → blocking. It's the #1 cause of
   rejection in the loop, and the case that slips through is the text the change left lying **without

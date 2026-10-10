@@ -45,6 +45,47 @@ for multiple flows, record each revision. A link alone is not approval.
 Fold this into the existing planning checkpoint, not another questionnaire. Unchanged approved
 HTML can be reused. A changed journey/entry point needs an updated preview and approval.
 
+### Mockup contract — what the screen must show, and what it must stop showing
+
+The approved HTML (or a mockup the project already approved, path in `squad.md §Flows`) is a
+**contract on the whole screen**, not a list of additions. Measured 2026-10-10: a 9-ticket run
+implemented everything the mockup added and left on screen three blocks the mockup had removed;
+the operator saw it in the first two minutes of a real test, after a full QA chain had passed.
+Nobody wrote the ticket that removes what the mockup no longer shows, because tickets are
+written from the diff "today → mockup" reading only what appears.
+
+So the flow doc carries a **screen inventory** per affected screen, filled by the architect
+from the mockup AND from the real screen today:
+
+`screen | element (today or in the mockup) | today | in the mockup | decision: add · keep ·
+change · remove · move into <place> | ticket | test`
+
+- Every element visible today that the mockup does not show gets its own row, decided as
+  `remove` or `move into …`, and a ticket/test like any addition. "The mockup just doesn't draw
+  it" is the row that gets lost, so it is the one written first.
+- Record the mockup revision (hash of the file) in the inventory and in BOARD `HTML review`.
+  A later change to the journey, an entry point or the WF that alters what the mockup shows
+  means the mockup is stale: the architect says `MOCK CHANGED: <what>` to the lead and the
+  human re-approves an updated HTML before implementation continues. Never adapt silently.
+- The lead's queue checkpoint shows the inventory totals (`added · removed · moved · unchanged`)
+  and names any row without a ticket. A removal without a ticket is an uncovered requirement.
+- The developer compares the mounted screen against the inventory before closing and reports
+  `Mock: matches` or `Mock: differs — <rows>`. The QA mounts the screen and judges the inventory
+  row by row: an element the mockup removed and the screen still shows is a REJECTED reason,
+  inside or outside the test contract.
+
+### Real state — mount the screen the way the operator opens it
+
+Unit tests and fixtures start from empty state; the operator's app does not. A screen that
+restores the previous session (last week, last project, saved filters) can take a different
+route from a clean one, and no clean-state test will ever see it. `squad.md §Flows` names the
+project's **real state**: the persisted file/DB rows the app loads on open (e.g. the operator's
+saved workspace JSON, a seeded user with history) and how to copy it into the test app without
+touching the original. Chain-closing QA of a UI change and every WF run mount the affected
+screens **with that copy** in addition to clean fixtures; the verdict says which state each
+evidence came from. No real state declared → QA reports `real state: none declared` and the
+lead treats it as a gap in `squad.md`, not as a pass.
+
 ## 2. One final WF ticket — only when requested
 
 The architect (lead on R0) appends exactly one ticket for the requested flow set, using

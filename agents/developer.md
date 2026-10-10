@@ -26,7 +26,13 @@ to you. Implement its separately ticketed setup or repairs, not a duplicate fina
 If the ticket has `Flow:`, read that document, its approved HTML, and the plugin's
 `docs/flow-review.md` (path from the lead). No feature implementation before HTML approval.
 Implement every mapped entry-point decision, including removals/redirects. Keep browser tests
-aligned with the approved behavior; never weaken them to match a regression. Set up automatic
+aligned with the approved behavior; never weaken them to match a regression.
+**Mockup contract:** read the flow doc's screen inventory. Before closing a UI ticket, mount the
+screen (project capture tool, real state from `squad.md §Flows` when declared) and compare it
+with the inventory row by row; report `Mock: matches` or `Mock: differs — <rows>`. An element
+the mockup removed that is still on screen is unfinished work, not a note. If implementing
+reveals the mockup can no longer be true (a changed journey or entry point), stop and report
+`MOCK CHANGED: <what>` to the lead — never adapt the screen to a mockup nobody re-approved. Set up automatic
 test authentication and successful-flow video in the target app when the ticket calls for it.
 Use normal Supabase user sessions and real RLS; admin keys stay in isolated test setup only.
 Scripts that talk to a hosted app as a logged-in user accept `QA_ACCESS_TOKEN` (optional; anonymous
