@@ -32,6 +32,7 @@ BOARD and tickets travel with the code and get merged together at closing. If it
 - Flow review: pending | passed | blocked | n/a · Commit: <tested SHA> · Evidence: <persistent paths>
 - PM review: pending | approved | changes-requested | n/a · Commit: <reviewed SHA> · Decision: <human response>
 - Trello evidence: pending | uploaded | blocked | n/a · Commit: <reviewed SHA> · Cards: <links + filenames in ticket Notes>
+- Handover: n/a | <absolute path of the handover note> (§Resilience, context ≥40%)
 
 ## Tickets
 | Ticket | Title | Theme | Prio | Status | Iter | Commit | Notes |
@@ -436,7 +437,9 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
 
 1. `bash ${CLAUDE_PLUGIN_ROOT}/scripts/worktree.sh list <repo>` → the live run. **The BOARD that counts is that
    worktree's**; the main repo's is the one from the last run already merged.
-2. Read the BOARD (Active run + table) and continue EXACTLY from there — don't repeat finished phases, and
+2. Read the BOARD (Active run + table) — and the `Handover:` note if there is one: its agents in
+   flight, run rules, operator decisions and verdicts that arrived after the hand-off are as binding as
+   the BOARD — and continue EXACTLY from there — don't repeat finished phases, and
    **respect the `Route:` already written: don't re-route**.
 3. If the BOARD contradicts `git log` (a commit made but not noted, a done not marked), git is the truth:
    reconcile the BOARD first and continue.
@@ -470,6 +473,22 @@ whether work was left unmerged. Do NOT modify anything.
   the BOARD Notes (`engine: … opus` / `… fable`). The quota rule above still applies: fable
   exhausted → stay on `opus`. This overrides "cheap QA on sonnet": cheap models are for tickets
   that are going well.
+- **Lead context ≥ ~40% → hand the run to a new session; don't keep going here** (operator rule
+  2026-10-22). A long run (many tickets, dozens of verdicts) fills the lead's context and it starts
+  forgetting rules and decisions. Subagents don't count (they have their own context): it's for the
+  lead. Check it at every verdict. Crossed → stop launching and:
+  1. BOARD up to date: Active run, the exact `Next step:`, and every agent in flight with its
+     ticket, commit/review SHA and what it was given.
+  2. Handover note — in the host's shared notes folder for the session if it offers one, else in the
+     run's worktree, uncommitted — and its absolute path in BOARD `Handover:`. It has: status per
+     ticket; agents IN FLIGHT with «don't relaunch without looking at `git log`/`git status` of the
+     run first»; the run's live rules; operator decisions; pending decisions; closing steps. It's a
+     handover, not a summary: the next lead must be able to continue with BOARD + note alone.
+  3. Pass the run to a new session: in Claude Desktop `hand_off_to_session` (brief = «`/squad:run
+     resume`, read BOARD + note at <path>»); without it, tell the operator to open one with
+     `/squad:run resume`.
+  4. The old session only appends the verdicts that still arrive to the note (section «verdicts in
+     flight»): no new launches, no BOARD edits — the BOARD belongs to the new lead now.
 - No task after the command and no active run in the BOARD: ask me for the task in one line.
 - The run's worktree **is not deleted on a failure**: it's the one that makes `resume` possible. It's only
   cleaned after a successful merge, or by hand with `worktree.sh clean … --force`.
