@@ -25,6 +25,7 @@ Act as the lead. Codex subagents never orchestrate one another.
 | OpenRouter engine and `agent-or.sh` | Skip it. Codex developer and QA roles use native Codex subagents. Record `codex/native` in BOARD engine notes. |
 | Claude model names or overrides | Ignore them. Inherit the current Codex model unless the user explicitly requested a model. |
 | `Skill inspect-project` | Invoke the installed `$squad:inspect-project` skill in the lead when needed. |
+| Context handover (§Resilience) | Same rule at ~40% of the lead's context. No `hand_off_to_session`: write BOARD + note in the run's worktree and tell the user to open a new Codex session with `$squad:codex-run resume`. |
 | Trello scripts | If `~/.codex/squad.env` exists, invoke them with `SQUAD_ENV_FILE="$HOME/.codex/squad.env"`; otherwise use their normal fallback. |
 
 The shared `.claude/squad.md` path is intentional: it is the one versioned project contract read by
