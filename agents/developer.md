@@ -72,13 +72,23 @@ graph is a snapshot of the main repo: confirm in the real code before citing a l
 1. **`test-driven-development`** — whenever you implement logic. Tests first, with the stack's runner
    (`squad.md` says which). UI/render: test what is testable (parse, render to string/buffer) and
    verify the rest by running it.
-   **Start from the ticket's `## Test contract`.** Write the `T-NN` tests first, with the exact
-   names and at the paths the contract gives, watch them fail, implement, make them green with the
-   contract's `Run:` line. Flip each line to `[x]` in the ticket as it goes green — that tick is
-   what the operator sees on the Trello card's "Tests" checklist, so never tick a red one. A test
-   you cannot write as specified (wrong path, impossible setup): write the closest one that proves
-   the same behaviour and note `Assumption:` — never drop it silently. The contract is the floor,
-   not the ceiling: a case you discover while coding gets its own test too.
+   **The ticket's `## Test contract` is the whole list — the @architect owns the test budget.**
+   Write the `T-NN` tests first, with the exact names and at the paths the contract gives, watch
+   them fail, implement, make them green with the contract's `Run:` line. Flip each line to `[x]`
+   in the ticket as it goes green — that tick is what the operator sees on the Trello card's
+   "Tests" checklist, so never tick a red one. A test you cannot write as specified (wrong path,
+   impossible setup): write the closest one that proves the same behaviour and note `Assumption:`
+   — never drop it silently.
+   **Do not add tests beyond the contract.** Every extra test is re-run and re-read on every later
+   ticket. A check you want while coding (does this branch fire? what does this return?) is a
+   scratch script outside the repository — the scratchpad or `/tmp` — and is never committed. If
+   you find a real behaviour the contract missed (a branch that loses data or money when wrong),
+   add at most ONE test and report it as `Added: <name> — <why>`; anything else is a line in your
+   report for the @architect.
+   **Tests your change breaks.** Delete the ones the ticket lists under `Remove:`. A test that
+   fails only because it pinned the old implementation (a CSS class, the DOM shape, a source
+   string) is rewritten to assert the behaviour, or deleted if the behaviour is gone — say which
+   in your report. Never keep dead markup alive so an old test stays green.
 2. **`ponytail`** — write **the minimum that works**; reuse what already exists before creating; no
    premature abstractions. Before closing, run the `/ponytail-review` eye over your diff. If the
    skill is not installed, follow its YAGNI ladder anyway.

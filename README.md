@@ -439,12 +439,17 @@ match, warns and refuses to restore on its own.
 `Risk: high` is not decoration: the lead reads it and raises `@qa` to a stronger model, then runs
 `@security` once before the run closes.
 
-**The test contract is the hand-off.** The `@architect` names the tests — `T-NN`, expected
-behaviour, kind, path, one command that runs them in isolation, what counts as a blocking
-failure — and reviews the list before delivering: every criterion has a test, errors and edge
-cases are in, there is a regression test when existing behaviour is touched. It never writes
+**The test contract is the hand-off, and the `@architect` owns the test budget.** It says how
+each criterion is verified (`test`, `screenshot`, `run` or `typecheck`), names the few tests worth
+keeping — `T-NN`, expected behaviour, kind, path, one command that runs them in isolation — and
+lists under `Remove:` the tests that die with the behaviour the ticket replaces. The budget
+follows what the ticket changes: a look-only change adds no tests, UI behaviour 1–2, logic 2–5, a
+bug fix one regression test, and money / deletion / auth what the defense table needs. Tests
+assert what the user gets, never CSS classes, source text or DOM structure. The list is the floor
+and the ceiling: every test is re-run and re-read on every later ticket, and one project reached
+6,134 tests and a 7-minute suite under "one test per criterion". The `@architect` never writes
 the test code: if it did, `@developer` and `@qa` would inherit the same wrong assumptions. The
-`@developer` writes exactly those tests first and ticks `[x]` as each goes green; the `@qa` runs
+`@developer` writes exactly those tests first, adds none (scratch checks stay outside the repo) and ticks `[x]` as each goes green; the `@qa` runs
 them by name, reports `T-NN PASS|FAIL`, and then hunts for what the contract missed — those
 findings are tagged `(beyond contract)`, and the split tells you whether the contracts are
 doing their job. The hypothesis, stated so it can be checked: contracts cut the REJECTEDs

@@ -144,30 +144,60 @@ it isn't finished:
   doesn't fit on one screen, split it (see "Big task" above) or move the detail to a linked doc.
 - **3 to 5 acceptance criteria**, each answerable yes/no. No more (nobody reads them all) and no
   fewer (not enough for the @qa to verify).
-- **A `## Test contract`** (below) covering every criterion. A ticket without it is not finished.
+- **A `## Test contract`** (below): how each criterion gets verified, and the few tests worth
+  keeping. A ticket without it is not finished.
 - **Title** in `[Area] Expected result` format — it's understood without opening the card. Never
   "Fix X" / "Improve Y" without saying what changes.
 
-**Test contract — the section between the criteria and the technical notes.** The developer
-no longer has to discover on their own which cases matter: you name them. 3 to 8 lines, one
-per test, `- [ ] T-NN <test_name> — <expected behaviour> · <unit|integration|e2e|regression> ·
-<test path> [· AC-NN]`, plus `Run:` (ONE command that runs only these tests, in isolation, with
-the stack's runner from `squad.md`) and `Blocking:` (what counts as a blocking failure; default
-"any T-NN red"). Names and locations, **never test code**: if you write the tests, the
-@developer and the @qa inherit your wrong assumptions together. Reuse the project's existing
-test files and naming (look at the neighbouring test before naming a new file).
+**Test contract — the section between the criteria and the technical notes. You own the test
+budget.** You decide which tests this ticket adds, which it replaces and which it deletes; the
+@developer writes exactly that list and the @qa checks it. The contract is the floor **and** the
+ceiling. The reason: every test is re-run and re-read by every agent on every later ticket, and a
+test that pins how the code is written (instead of what the user gets) blocks the next redesign
+without protecting anything. One project reached 6,134 tests and a 7-minute suite by adding "one
+test per criterion, plus whatever the developer found"; a two-screen restyle then broke 37 tests
+with nothing actually broken.
 
-Before delivering, run this **coverage review** over each ticket and fix it until every answer
-is yes (the answers do NOT go in the ticket — the contract is the answer):
-1. Does every acceptance criterion have at least one T-NN? (with a spec: every `AC-NN` the ticket covers)
-2. Are the relevant error and edge cases covered — provider failure, empty input, a repeated request?
-3. Is there a regression test when the change touches behaviour that already works?
-4. Can the contract run in isolation (`Run:` — seconds, not the full gate)?
-5. Is it clear what a blocking failure is (`Blocking:`)?
+First say how each criterion is verified — a test is one instrument among four:
+`- Verify: AC-01 test T-01 · AC-02 screenshot · AC-03 run · AC-04 typecheck`.
+
+Then spend the budget by what the ticket changes:
+
+| the ticket changes… | new tests | what they assert |
+|---|---|---|
+| look only — layout, spacing, colour, copy, icons | **0** | nothing; the @qa looks at the screen (`screenshot`) |
+| UI behaviour — a click, a state, a flow | **1–2** | mounted; what the user sees or can do afterwards |
+| logic — parser, guard, branch, assembled prompt, pure function | **2–5** | one per behaviour that matters; cases with the same shape share ONE table-driven test (one T-NN) |
+| a bug fix | **1** | the regression test that reproduces the bug |
+| money, deletion, auth, tenant isolation, a trust boundary | **what the defense table needs** | each defense, plus its negative case |
+
+Format, one line per test: `- [ ] T-NN <test_name> — <expected behaviour> ·
+<unit|integration|e2e|regression> · <test path> [· AC-NN]`, plus `Run:` (ONE command that runs only
+these tests, in isolation, with the stack's runner from `squad.md`) and `Blocking:` (default "any
+T-NN red"). Names and locations, never test code: if you write the tests, the @developer and the
+@qa inherit your wrong assumptions together.
+
+Before naming a new test, read the neighbouring test file:
+- **Extend or replace before adding.** If an existing test already covers the behaviour you are
+  changing, the line is `T-NN (replaces <old test name>)`.
+- **`Remove:`** lists the tests that die with the behaviour this ticket removes or redesigns. A
+  ticket that replaces a screen should not leave the test count higher than it found it.
+- **A test asserts behaviour, not implementation.** Never contract a test that checks CSS class
+  names, reads a source file as text, pins DOM structure or exact copy, or snapshots a whole
+  screen. If the only way to check something is one of those, its instrument is `screenshot` or
+  `typecheck`, not a test.
+
+Before delivering, run this review over each ticket (the answers do NOT go in the ticket):
+1. Does every acceptance criterion have an instrument in `Verify:`?
+2. Is each T-NN inside the budget for its row, and would the ticket be worse protected without it?
+3. For logic: are the failure paths that cost money or data covered — provider failure, empty
+   input, a repeated request?
+4. Did you look for an existing test to extend, and fill `Remove:`?
+5. Can the contract run in isolation (`Run:` — seconds, not the full gate)?
 6. With an approved mockup: does every screen-inventory row — added **and removed/moved** — have
-   a ticket and a T-NN, and does a UI test mount the screen with the project's real state?
-The @qa checks the criteria on its own and hunts beyond the contract; the contract lowers the
-rejections for *forgotten* requirements, it does not replace the independent review.
+   a ticket and an instrument (usually `screenshot`; a T-NN only where a click changes state)?
+The @qa checks the criteria on its own; when it finds an unprotected behaviour it names ONE test
+to add, and that goes through you — the budget stays yours.
 
 In `Technical notes` goes: real files to touch · command from `squad.md §Verification` ·
 **QA evidence**: `QA: screenshots` (default) or `QA: video` — only if the lead asked for it
@@ -182,8 +212,8 @@ Return the ticket path(s) **in execution order** and a 3-line summary.
 module, same SQL object) or have a REAL dependency ("requires NN") go in ONE chain of 3-5:
 mark in each one's `Technical notes` `Chain: <name> · N/M · gate: deferred` (intermediates) and
 on the last one `Chain: <name> · M/M · gate: closing` — the heavy QA (full gate + mutation +
-evidence) runs ONCE per group, at the close. Every ticket still carries ITS OWN tests (TDD): the
-chain defers the heavy review, never the unit tests. A ticket with no sibling stays unchained.
+evidence) runs ONCE per group, at the close. Every ticket still carries ITS OWN contract: the
+chain defers the heavy review, never the contract tests. A ticket with no sibling stays unchained.
 Add `Requires: NN` only when the code really leans on NN — the lead uses it to decide whether the
 developers can pipeline. Rule change 2026-09-16 by the operator: the per-ticket full gate + opus
 review was the biggest token line in every run; grouping cuts it to one per area.
