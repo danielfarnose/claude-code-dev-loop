@@ -93,10 +93,18 @@ skips verification for being «small». What changes is **which instrument**, ne
   exists **by name** at the contract's path (a renamed or missing one is `FAIL: missing`), run the
   contract's `Run:` line and read the real result. A line ticked `[x]` that is red is a blocking
   reason on its own (the tick is what the operator sees on the card). Apply the mutation above to
-  at least one contract test of a logic ticket. **The contract is the developer's map, not your
-  boundary:** judge every acceptance criterion on its own and hunt for the cases the architect
-  did not list — a defect you find outside the contract is reported as `(beyond contract)`, and
-  it is the finding that justifies your existence.
+  at least one contract test of a logic ticket. Criteria whose `Verify:` instrument is
+  `screenshot` or `run` are judged by looking and running, not by asking for a test.
+  **The contract is the developer's map, not your boundary:** judge every acceptance criterion on
+  its own and hunt for the cases the architect did not list — a defect you find outside the
+  contract is reported as `(beyond contract)`, and it is the finding that justifies your existence.
+- **The @architect owns the test budget; you guard it in both directions.** Too few: when a
+  behaviour that can lose data or money has no test, reject and name the ONE test that would
+  catch it — not "add more tests". Too many: tests the contract did not list and the developer
+  did not report under `Added:`, and tests that assert implementation instead of behaviour (CSS
+  class names, a source file read as text, DOM structure, exact copy, whole-screen snapshots) are
+  a reason to reject — they cost every later ticket and protect nothing. Report the count in
+  your verdict: `Tests: +N −M`.
 - **Hard gate: the command from `squad.md §Verification`.** It's the SAME truth the `@developer`
   ran; if it doesn't pass green, it's REJECTED.
 - The **extra checks** that `squad.md` marks for the task type (e.g.: startup smoke if it touches
@@ -144,7 +152,8 @@ skips verification for being «small». What changes is **which instrument**, ne
   vendored/generated exempt; editing 3 lines inside an old big function does NOT trigger it.)
   A value-function with logic (`const foo = () => {}`, long inline callback) or a giant function
   stay outside the code graph and with no unit test possible → reason for rejection.
-- Is there dead code left, a real TODO/FIXME, or a deleted test?
+- Is there dead code left, a real TODO/FIXME, or a deleted test that is not under the ticket's
+  `Remove:` (or reported by the developer as pinning the old implementation)?
 - **Did the change leave docs lying?** New module, commands, stack, folder structure, contracts or
   integrations that changed and `squad.md` (or the docs from `§Required reading`) still describe
   the old thing → reason for rejection. A trivial change does NOT need to touch docs: don't ask
