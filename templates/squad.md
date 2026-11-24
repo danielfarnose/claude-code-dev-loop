@@ -93,6 +93,9 @@ If the project genuinely has none of this (a local single-user tool), say so lit
 <!-- Mandatory extra skills depending on the task (e.g. design skills if it touches UI). "None extra" if
 only the agents' own apply (ponytail, TDD) + the design ones (impeccable → motion-design, and
 gsap-* if the project uses GSAP) that @developer applies on UI tasks when they're installed.
+Default design route on a task that changes a screen: lead runs a SCOPED `impeccable critique`
+(the component/section touched) → developer `adapt` (every viewport declared below) → `polish`
+before reporting. Declare here the viewports that must hold (e.g. `390 · 1280`).
 To disable that default in this project, say so explicitly here. -->
 
 ## Git / close

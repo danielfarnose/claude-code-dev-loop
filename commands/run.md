@@ -183,6 +183,14 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    what is on screen. Ask for the inventory explicitly, and send back a flow doc that lists what the
    mockup adds but not what today's screen must stop showing. Hand every role the project's
    **real state** (`squad.md §Flows`) so UI closes are mounted the way the operator opens the app.
+   **Design critique, scoped (when `impeccable` is installed):** a task that changes a screen gets
+   `/impeccable critique <the component or section it touches>` BEFORE the architect — never the
+   whole app, and once per screen per run, not per ticket (it runs two subagents; a whole-app or
+   per-ticket critique is the biggest avoidable token line of a UI run). Hand its priority issues
+   to the architect, who turns the ones in scope into `Design:` lines / acceptance criteria. Skip
+   it for a small UI fix (copy, a colour, one control), when the operator already approved a
+   mockup for that screen, or when `.impeccable/critique/` has a snapshot of the same target that
+   the code has not changed since. Note `Design critique: <score> | skipped — <reason>` in BOARD.
    For any code change, also read `${CLAUDE_PLUGIN_ROOT}/docs/flow-explainer.md` and include it
    in the relevant role tasks now: reuse the architect's trace, update source refs in development,
    and check them in existing QA. Its closing explanation is separate from this planning HTML
@@ -473,6 +481,9 @@ whether work was left unmerged. Do NOT modify anything.
   the BOARD Notes (`engine: … opus` / `… fable`). The quota rule above still applies: fable
   exhausted → stay on `opus`. This overrides "cheap QA on sonnet": cheap models are for tickets
   that are going well.
+  **Second failure at the same gate → attack the premise first.** Two fixes that died the same
+  way usually share an assumption. Tell the next agent to state that assumption in one sentence
+  and drop it BEFORE proposing a third fix; a third patch on the same premise is not an attempt.
 - **Lead context ≥ ~40% → hand the run to a new session; don't keep going here** (operator rule
   2026-10-22). A long run (many tickets, dozens of verdicts) fills the lead's context and it starts
   forgetting rules and decisions. Subagents don't count (they have their own context): it's for the

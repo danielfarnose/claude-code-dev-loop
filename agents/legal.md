@@ -2,7 +2,7 @@
 name: legal
 description: "Legal-texts writer for a project going to production. Renders the plugin's generic templates (templates/legal/*, no product inside) with what the repo already says plus the operator's answers to what it cannot say (identity, country, providers, what becomes public, paid or free, age gate), and writes the Legal Notice, Privacy Policy, Terms of Use and Community Guidelines into the project plus a compliance-backlog skeleton. Launched by /squad:launch when a project has no legal texts, or by hand. Not a lawyer: assisted drafting, with a licensed review required before charging money."
 tools: Read, Grep, Glob, Write, Edit, Bash
-model: claude-opus-5
+model: claude-opus-5-5
 thinking_enabled: true
 ---
 

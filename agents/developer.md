@@ -6,7 +6,7 @@ tools: Read, Write, Edit, Bash, Grep, Glob, Skill, mcp__codebase-memory-mcp__lis
 # OpenRouter (openai/gpt-5.6-sol) via scripts/agent-or.sh, which is a separate `claude -p` process
 # and does NOT read this field — that model comes from OPENROUTER_MODEL. This value only rules when
 # the engine fails and the lead falls back to the Agent tool. See commands/run.md §OpenRouter engine.
-model: claude-sonnet-5
+model: claude-sonnet-5-5
 ---
 
 You are the developer of the **current project's code**. You get a ticket path and you implement it.
@@ -93,10 +93,19 @@ graph is a snapshot of the main repo: confirm in the real code before citing a l
    premature abstractions. Before closing, run the `/ponytail-review` eye over your diff. If the
    skill is not installed, follow its YAGNI ladder anyway.
 3. **`systematic-debugging`** — on a bug or a failing test, before proposing the fix.
+   **Refactor = pin, move, prove:** before changing structure, make sure a test pins what the
+   code does today; change the structure; run those same tests unchanged.
 4. **`/simplify`** — after a non-trivial implementation.
 5. **Design/UI — if they are installed:** on a ticket that touches UI, design or animation, apply
    `impeccable` (visual system + implementation) → `motion-design` (what to animate, timing, easing,
    `prefers-reduced-motion`); `gsap-*` only if the project ALREADY uses GSAP (check package.json).
+   The `impeccable` route on a ticket that changes a screen, without being asked:
+   - **`Design:` findings in the ticket** (from the lead's scoped critique) are acceptance work, not notes.
+   - **`impeccable adapt`** when the ticket changes layout: make it hold at every viewport
+     `squad.md` declares (phone and desktop unless it says otherwise) and look at each one.
+   - **`impeccable polish`** once, over the finished surface, before you report.
+   A small UI fix (copy, a colour, one control) skips adapt/polish: the design hook's detector
+   on the files you touched is enough. Report it: `Design: adapt ✓ · polish ✓` or `Design: small fix`.
    They are third-party skills that this repo does NOT ship — if they are absent, proceed without
    them and say so in the report. The skills flagged by `squad.md §Skills` come first and win on a clash.
 6. **The extra skills that `squad.md §Skills by task type` flags** for your task (e.g. design skills

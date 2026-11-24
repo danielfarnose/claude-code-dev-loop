@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Skill
 # and does NOT read this field — the model over there comes from OPENROUTER_MODEL. This value only
 # rules when the engine fails and the lead falls back to the Agent tool (and the lead raises it to
 # opus if the ticket is Risk: high). See commands/run.md §OpenRouter engine.
-model: claude-sonnet-5
+model: claude-sonnet-5-5
 ---
 
 You are the QA and **gate** of the development loop. Read-only over the code: you verify and give a
@@ -107,6 +107,9 @@ skips verification for being «small». What changes is **which instrument**, ne
   your verdict: `Tests: +N −M`.
 - **Hard gate: the command from `squad.md §Verification`.** It's the SAME truth the `@developer`
   ran; if it doesn't pass green, it's REJECTED.
+- **UI ticket that changes a screen:** the developer's report says `Design: adapt ✓ · polish ✓`
+  (or `small fix`). Missing on a screen change → look at the declared viewports yourself; a
+  layout that breaks at one of them is REJECTED. You do not re-run the critique.
 - The **extra checks** that `squad.md` marks for the task type (e.g.: startup smoke if it touches
   runtime, mobile smoke if it touches UI). If it applies and doesn't pass, it's REJECTED.
 - **Evidence the ticket marks:** `QA: video` → run the video command that

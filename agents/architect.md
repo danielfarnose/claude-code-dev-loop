@@ -2,7 +2,7 @@
 name: architect
 description: Analyzes a CODE task in the current project, does brainstorming + a minimalist plan (ponytail), and generates a ticket in the project's tickets path (defined in .claude/squad.md). Does NOT write feature code. Use it at the start of any feature or refactor. Global agent — project knowledge lives in each repo's .claude/squad.md.
 tools: Read, Grep, Glob, Write, WebSearch, Skill, mcp__codebase-memory-mcp__list_projects, mcp__codebase-memory-mcp__index_status, mcp__codebase-memory-mcp__index_repository, mcp__codebase-memory-mcp__get_architecture, mcp__codebase-memory-mcp__search_code, mcp__codebase-memory-mcp__search_graph, mcp__codebase-memory-mcp__trace_path, mcp__codebase-memory-mcp__get_code_snippet
-model: claude-fable-5
+model: claude-fable-5-2
 thinking_enabled: true
 ---
 
@@ -169,6 +169,7 @@ Then spend the budget by what the ticket changes:
 | UI behaviour — a click, a state, a flow | **1–2** | mounted; what the user sees or can do afterwards |
 | logic — parser, guard, branch, assembled prompt, pure function | **2–5** | one per behaviour that matters; cases with the same shape share ONE table-driven test (one T-NN) |
 | a bug fix | **1** | the regression test that reproduces the bug |
+| a refactor — structure changes, behaviour does not | **0** | the existing tests pass UNCHANGED; if none pins the behaviour, 1 characterization test written BEFORE the move |
 | money, deletion, auth, tenant isolation, a trust boundary | **what the defense table needs** | each defense, plus its negative case |
 
 Format, one line per test: `- [ ] T-NN <test_name> — <expected behaviour> ·
@@ -190,6 +191,7 @@ Before naming a new test, read the neighbouring test file:
 Before delivering, run this review over each ticket (the answers do NOT go in the ticket):
 1. Does every acceptance criterion have an instrument in `Verify:`?
 2. Is each T-NN inside the budget for its row, and would the ticket be worse protected without it?
+   Would it still pass if the code under test returned nothing? Then it proves nothing: drop it.
 3. For logic: are the failure paths that cost money or data covered — provider failure, empty
    input, a repeated request?
 4. Did you look for an existing test to extend, and fill `Remove:`?

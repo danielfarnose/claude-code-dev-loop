@@ -768,6 +768,11 @@ shipping someone else's code under your license and pinning a copy that silently
 each agent states the underlying rule inline and follows it when the skill is absent, and reports
 that it did. Install them separately and the agents pick them up automatically.
 
+With `impeccable` installed, a task that changes a screen follows a default design route: the lead
+runs a **scoped** `critique` (the component or section touched — once per screen per run, never the
+whole app), the developer runs `adapt` across the viewports the project declares and one `polish`
+pass before reporting, and a small UI fix (copy, a colour, one control) only gets the detector.
+
 ### Bring your own stack skills (Next, React, Python, iOS, …)
 
 squad is stack-agnostic: the agents learn your stack from `squad.md`, and you can hand them any
