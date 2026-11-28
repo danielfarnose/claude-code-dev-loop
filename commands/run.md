@@ -189,8 +189,16 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    per-ticket critique is the biggest avoidable token line of a UI run). Hand its priority issues
    to the architect, who turns the ones in scope into `Design:` lines / acceptance criteria. Skip
    it for a small UI fix (copy, a colour, one control), when the operator already approved a
-   mockup for that screen, or when `.impeccable/critique/` has a snapshot of the same target that
-   the code has not changed since. Note `Design critique: <score> | skipped — <reason>` in BOARD.
+   mockup for that screen **that went through its own critique** (next paragraph), or when
+   `.impeccable/critique/` has a snapshot of the same target that the code has not changed since.
+   Note `Design critique: <score> | skipped — <reason>` in BOARD.
+   **Every screen mockup gets its own critique (operator rule 2026-11-28, when `impeccable` is
+   installed):** for any HTML screen mockup — the @architect's or yours — YOU run
+   `/impeccable critique <mockup path>` before checkpoint 1b (the architect cannot launch it).
+   Fix its P0/P1 in the mockup before showing it; the score goes to the checkpoint. The mockup is this run's own code: register it in
+   BOARD and in the ticket as `Mock: <path> · author: <architect|lead> · run <RUN-…> · critique:
+   <score>`, and never silence the design hook on it as "only a prototype" — only a measured false
+   positive is silenced (`docs/flow-review.md` «Design critique of every mockup»).
    For any code change, also read `${CLAUDE_PLUGIN_ROOT}/docs/flow-explainer.md` and include it
    in the relevant role tasks now: reuse the architect's trace, update source refs in development,
    and check them in existing QA. Its closing explanation is separate from this planning HTML
@@ -252,7 +260,9 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
    and entry-point decisions in this same checkpoint, and record the approved HTML revision in
    BOARD. Under the table print the inventory line — `Mock: <rev> · added N · removed N · moved N
    · unchanged N · uncovered: <rows or none>` — so the human sees what disappears, not only what
-   arrives; an uncovered row goes back to the @architect before the yes. This approves the
+   arrives; an uncovered row goes back to the @architect before the yes. Next to each mockup show
+   its critique score with P0/P1 already fixed (step 0c); a mockup with open P0/P1 or no critique
+   while `impeccable` is installed is not shown yet. This approves the
    intended behavior; when WF is requested, the human also reviews the real result at step 3b.
    Changing the scope here is free; after 9
    commits it isn't. If they ask for adjustments → go back to the @architect with them and repeat this checkpoint.
@@ -350,6 +360,11 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
         `fix(<chain>):` that sit on top, in `git log --oneline`) + the paths of ALL the tickets.
         It runs the full gate + the evidence + the criteria of the whole chain over
         `git diff <base>..HEAD`.
+      **A ticket that writes or changes a Claude skill, subagent, command or plugin manifest in the
+      project** (operator rule 2026-11-28): it follows the current official Claude Code docs
+      (frontmatter, `model`/`effort` values, description, `SKILL.md` under 500 lines), and the
+      developer and the @qa run `claude plugin validate --strict <its directory>` — not exit 0 is a
+      REJECTED reason. Add `/skill-doctor` (in-session) when the change adds always-on cost.
    c. REJECTED → go back to the developer with the reasons. **Launch a NEW @developer, don't resume the
       previous one with `SendMessage`.** Resuming a finished agent reloads its entire transcript and
       costs as much as a new one — measured twice: a two-string fix cost 228k tokens (more than a
@@ -361,8 +376,8 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
       BOARD and dispatch it when it delivers. Its commit will no longer be HEAD, so the amendment goes in
       ONE new commit `fix(<ticket>): …` — the same rule that already governs the rejection of a chain
       closing.
-      A failed ticket escalates the model of the next agent (opus, then fable — see
-      §Resilience). On iteration ≥2 hand it ALL the reasons
+      A failed ticket escalates the model of the next agent (opus + effort high, then fable —
+      see §Resilience). On iteration ≥2 hand it ALL the reasons
       from the previous rounds (the @qa marks them `(new)`/`(recurring)`; recurring = oscillation
       → note it in the BOARD's Notes). Amendment: `git commit --amend` ONLY while its commit is still
       HEAD; with commits on top (rejection of a `gate: closing`) → ONE new commit
@@ -469,18 +484,22 @@ whether work was left unmerged. Do NOT modify anything.
 
 ## Resilience
 
-- Subagent fails on model quota (fable) → retry the SAME call with `opus` override
-  (in the call; do NOT edit the agent's frontmatter). First quota failure in the run → the
-  REST of the run uses `opus` directly in the calls to fable agents, and note
-  "fable exhausted → opus" in the BOARD's Active run (so `resume` doesn't trip again).
+- Subagent fails on model quota (fable) → retry the SAME call with `model: opus` +
+  `effort: high` (in the call; do NOT edit the agent's frontmatter). First quota failure in the
+  run → the REST of the run uses `opus` + `high` directly in the calls to fable agents, and note
+  "fable exhausted → opus high" in the BOARD's Active run (so `resume` doesn't trip again).
+  A host whose Agent call has no `effort` field → `opus` alone, and say so in the BOARD.
 - **A ticket fails → escalate the model of the NEXT agent that touches it.** "Fails" = a
   REJECTED (any kind, incl. `REJECTED (design)`), a partial delivery from the developer, or an
-  engine failure. Ladder, override in the call (never the frontmatter): 1st failure → the next
-  agent runs on `opus`; if that one fails again → the following agent runs on `fable`. Never kill
-  an agent in flight to relaunch it on a better model: escalate the next one. Note the model in
-  the BOARD Notes (`engine: … opus` / `… fable`). The quota rule above still applies: fable
-  exhausted → stay on `opus`. This overrides "cheap QA on sonnet": cheap models are for tickets
-  that are going well.
+  engine failure. Ladder (operator rule 2026-11-28; it voids the 2026-11-27 "no fable"), override
+  in the Agent call, never the frontmatter: attempt 1 → the agent's own model and effort; 1st
+  failure → the next agent runs with `model: opus` + `effort: high`; fails again → the following
+  agent runs with `model: fable`. A ticket that looks hard from the start may be launched on
+  `opus` + `high` or on `fable` at once — write why in the BOARD. Never kill an agent in flight to
+  relaunch it on a better model: escalate the next one. Note model and effort in the BOARD Notes
+  (`engine: … opus high` / `… fable`). The quota rule above still applies: fable exhausted → stay
+  on `opus` + `high`. This overrides "cheap QA on sonnet": cheap models are for tickets that are
+  going well.
   **Second failure at the same gate → attack the premise first.** Two fixes that died the same
   way usually share an assumption. Tell the next agent to state that assumption in one sentence
   and drop it BEFORE proposing a third fix; a third patch on the same premise is not an attempt.

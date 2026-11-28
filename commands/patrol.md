@@ -57,4 +57,4 @@ You (LEAD) orchestrate; agents do NOT call each other. Caveman mode. Non-blockin
 - A finding without a concrete repro/evidence is NOT a ticket — it goes in the report as an open question.
 - Don't invent findings to justify the run: a clean patrol = "patrol clean", and that's it.
 - `squad.md` Forbidden zones: don't scan them to "improve" them and don't touch them in fixes.
-- Quota fallback: same as `/squad:run` (override `opus` in the call).
+- Quota fallback and failure ladder: same as `/squad:run` §Resilience (`opus` + `effort: high` in the call, then `fable`).

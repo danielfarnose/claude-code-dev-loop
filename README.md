@@ -698,6 +698,14 @@ with your product's own words. Nothing goes live while `grep -rn "\[\[WRITE" .` 
   Codex inherits the active model for its native subagents. Both record the actual engine in BOARD.
 - **Process changes go here; project specifics go in that project's `squad.md`.** A change here
   applies to every project at once.
+- **Official Claude practices, always.** Every change to this plugin, and every skill, subagent or
+  command the squad writes in a project, follows the current official Claude Code docs
+  ([skills](https://code.claude.com/docs/en/skills.md),
+  [subagents](https://code.claude.com/docs/en/sub-agents.md),
+  [plugins](https://code.claude.com/docs/en/plugins/components.md)) and passes
+  `claude plugin validate --strict <path>` (for this repo: `.`, `.claude-plugin/plugin.json`,
+  `agents`, `commands`, `skills`) before its PR. `/skill-doctor` (in-session) checks what it adds
+  to every session's context; `claude plugin eval` applies once the plugin ships an `evals/` suite.
 
 ## Layout
 

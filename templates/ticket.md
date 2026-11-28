@@ -53,7 +53,7 @@ essentials — long research or extensive design goes in a separate doc, linked.
 colored tag in Trello, next to the project tag. -->
 <!-- Only if applicable, one line each: -->
 - Flow: <ID + flow doc/HTML path; entry-point decisions and tests live there>
-- Mock: <approved mockup path · rev <hash> · inventory rows this ticket covers, removals included>
+- Mock: <approved mockup path · rev <hash> · author: <architect|lead> · run <RUN-…> · critique: <score> · inventory rows this ticket covers, removals included>
 - Kind: flow-review
 - Depends on: <implementation/setup/repair ticket slugs>
 <!-- Kind: flow-review ONLY for the single final ticket explicitly requested with "prueba con WF"
