@@ -422,10 +422,10 @@ match, warns and refuses to restore on its own.
 - [ ] A regression test fails if the verification is removed.
 
 ## Test contract
-- [ ] T-01 restore_verifies_integrity — a restore checks the hash before touching anything · unit · src/backup/restore.test.ts
-- [ ] T-02 tampered_backup_warns — a modified file shows a warning naming what happened · unit · src/backup/restore.test.ts
-- [ ] T-03 tampered_backup_never_auto_restores — no restore without the human's confirmation · unit · src/backup/restore.test.ts
-- [ ] T-04 intact_backup_still_restores — the existing happy path is untouched · regression · src/backup/restore.test.ts
+- [ ] T-01 A restore checks the backup is intact before touching anything · `restore_verifies_integrity` — hash checked first · unit · src/backup/restore.test.ts
+- [ ] T-02 A modified backup shows a warning that says what happened · `tampered_backup_warns` · unit · src/backup/restore.test.ts
+- [ ] T-03 A modified backup is never restored without the person confirming · `tampered_backup_never_auto_restores` · unit · src/backup/restore.test.ts
+- [ ] T-04 An intact backup still restores as before · `intact_backup_still_restores` · regression · src/backup/restore.test.ts
 - Run: `npx vitest run src/backup/restore.test.ts`
 - Blocking: any T-NN red
 
@@ -441,7 +441,8 @@ match, warns and refuses to restore on its own.
 
 **The test contract is the hand-off, and the `@architect` owns the test budget.** It says how
 each criterion is verified (`test`, `screenshot`, `run` or `typecheck`), names the few tests worth
-keeping — `T-NN`, expected behaviour, kind, path, one command that runs them in isolation — and
+keeping — `T-NN`, a plain sentence anyone understands (what the user sees or can do, or which
+bug does not come back), then the test name, kind, path, and one command that runs them in isolation — and
 lists under `Remove:` the tests that die with the behaviour the ticket replaces. The budget
 follows what the ticket changes: a look-only change adds no tests, UI behaviour 1–2, logic 2–5, a
 bug fix one regression test, and money / deletion / auth what the defense table needs. Tests
@@ -449,7 +450,10 @@ assert what the user gets, never CSS classes, source text or DOM structure. The 
 and the ceiling: every test is re-run and re-read on every later ticket, and one project reached
 6,134 tests and a 7-minute suite under "one test per criterion". The `@architect` never writes
 the test code: if it did, `@developer` and `@qa` would inherit the same wrong assumptions. The
-`@developer` writes exactly those tests first, adds none (scratch checks stay outside the repo) and ticks `[x]` as each goes green; the `@qa` runs
+`@developer` writes exactly those tests first, adds none (scratch checks stay outside the repo) and ticks `[x]` as each goes green.
+A test the contract does not list — a regression the `@qa` wants, a case the developer found, an
+old test rewritten so it passes — enters as a new `T-NN` added by the architect or the lead
+first; one written outside the contract is REJECTED even when green. The `@qa` runs
 them by name, reports `T-NN PASS|FAIL`, and then hunts for what the contract missed — those
 findings are tagged `(beyond contract)`, and the split tells you whether the contracts are
 doing their job. The hypothesis, stated so it can be checked: contracts cut the REJECTEDs
@@ -458,7 +462,7 @@ independent reviewer finds. The number to watch is the **first-pass rate** — t
 at `Iter 1/3` over tickets done — which the lead prints at every close.
 
 Those ticks are also what the Trello card shows: the sync mirrors the contract as the card's
-**"Tests" checklist** (`3/4` on the card front, one item per `T-NN`, checked when green), so
+**"Tests" checklist** (`3/4` on the card front, one item per `T-NN` showing its plain sentence, checked when green), so
 you see on the same card what the ticket is, which tests it will get and which already pass.
 
 ### Discovery before requirements — the PM interviews, the human decides

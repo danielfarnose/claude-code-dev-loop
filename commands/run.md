@@ -365,7 +365,10 @@ upload on implementation tickets. A failed upload leaves the final ticket pendin
       (frontmatter, `model`/`effort` values, description, `SKILL.md` under 500 lines), and the
       developer and the @qa run `claude plugin validate --strict <its directory>` — not exit 0 is a
       REJECTED reason. Add `/skill-doctor` (in-session) when the change adds always-on cost.
-   c. REJECTED → go back to the developer with the reasons. **Launch a NEW @developer, don't resume the
+   c. REJECTED → go back to the developer with the reasons. A test the @qa asks for (a
+      regression, a missing case) or a `Missing test:` the developer reported → add it to the
+      ticket's `## Test contract` as a new `T-NN`, plain sentence first, BEFORE relaunching the
+      developer: it writes only what the contract lists. **Launch a NEW @developer, don't resume the
       previous one with `SendMessage`.** Resuming a finished agent reloads its entire transcript and
       costs as much as a new one — measured twice: a two-string fix cost 228k tokens (more than a
       complete developer, 115k), and an amendment over the code the agent itself had just

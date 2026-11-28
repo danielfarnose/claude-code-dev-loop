@@ -32,12 +32,17 @@ Names, behaviour and location — never test code. Budget: look-only change 0 te
 1–2 · logic 2–5 (same-shape cases share one table-driven test) · bug fix 1 regression · money /
 deletion / auth: what the defense table needs. A test asserts what the user gets, never CSS
 classes, source text, DOM structure or exact copy.
-`- [ ] T-NN <test_name> — <expected behaviour> · <unit|integration|e2e|regression> · <test path> [· AC-NN]`
+`- [ ] T-NN <plain sentence> · <test_name> — <how it is mounted> · <unit|integration|e2e|regression> · <test path> [· AC-NN]`
+The plain sentence comes first and a non-developer understands it: what the user sees or can do,
+or which bug does not come back (no code names, no `·`). Rewriting an old test so it passes is a
+line too: `T-NN (rewrites <old test> — <why>)`. Only the @architect or the lead adds a T-NN.
 @developer writes exactly these tests first (same names), adds none, and flips `[x]` when green.
-@qa runs them by name, reports `T-NN PASS|FAIL` and `Tests: +N −M`.
-The Trello sync mirrors this list as the card's "Tests" checklist (checked = green). -->
+A test outside this list is REJECTED by the @qa even when green.
+@qa runs them by name, reports `T-NN PASS|FAIL — <plain sentence>` and `Tests: +N −M`.
+The Trello sync mirrors this list as the card's "Tests" checklist: the item is the text up to the
+first ` · `, i.e. the plain sentence (checked = green). -->
 - Verify: AC-01 test T-01 · AC-02 screenshot · AC-03 run
-- [ ] T-01 <test_name> — <expected behaviour> · unit · <path/to/test> · AC-01
+- [ ] T-01 <what the user sees or can do, in plain words> · `<test_name>` — <how it is mounted> · unit · <path/to/test> · AC-01
 - Remove: <tests that die with the behaviour this ticket removes or redesigns, or "none">
 - Run: <one command that runs ONLY these tests, in isolation>
 - Blocking: any T-NN red <· plus what else blocks, if anything>

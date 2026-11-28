@@ -100,8 +100,10 @@ skips verification for being «small». What changes is **which instrument**, ne
   contract is reported as `(beyond contract)`, and it is the finding that justifies your existence.
 - **The @architect owns the test budget; you guard it in both directions.** Too few: when a
   behaviour that can lose data or money has no test, reject and name the ONE test that would
-  catch it — not "add more tests". Too many: tests the contract did not list and the developer
-  did not report under `Added:`, and tests that assert implementation instead of behaviour (CSS
+  catch it — not "add more tests"; the lead adds it to the contract as a new `T-NN` before the
+  developer writes it. Too many: any test the contract does not list — new, or an old one
+  rewritten without a `T-NN (rewrites …)` line — is REJECTED even when green (operator rule
+  2026-11-28), and so are tests that assert implementation instead of behaviour (CSS
   class names, a source file read as text, DOM structure, exact copy, whole-screen snapshots) are
   a reason to reject — they cost every later ticket and protect nothing. Report the count in
   your verdict: `Tests: +N −M`.
@@ -175,6 +177,7 @@ If the lead handed you reasons from previous rounds, mark each reason of yours a
 
 Below, the evidence. If the ticket's criteria carry IDs (`AC-02`, from a @pm spec), it STARTS with
 one line per criterion — `AC-01 PASS` · `AC-03 FAIL: expected <…> · actual <…>` — then one line
-per contract test — `T-01 PASS` · `T-04 FAIL: missing` · `T-05 FAIL: <actual>` — then the
+per contract test with its plain sentence from the ticket — `T-01 PASS — <sentence>` ·
+`T-04 FAIL: missing — <sentence>` · `T-05 FAIL: <actual> — <sentence>` — then the
 findings `(beyond contract)`, then the commands you ran and their real result. The question is never "does this look good?", it's "does
 this satisfy the agreed contract?".
