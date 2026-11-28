@@ -167,13 +167,18 @@ Then spend the budget by what the ticket changes:
 |---|---|---|
 | look only — layout, spacing, colour, copy, icons | **0** | nothing; the @qa looks at the screen (`screenshot`) |
 | UI behaviour — a click, a state, a flow | **1–2** | mounted; what the user sees or can do afterwards |
-| logic — parser, guard, branch, assembled prompt, pure function | **2–5** | one per behaviour that matters; cases with the same shape share ONE table-driven test (one T-NN) |
+| logic — parser, guard, branch, assembled prompt, pure function | **2–5** | one per behaviour that matters; cases with the same shape share ONE table-driven test (`it.each`, one T-NN) |
 | a bug fix | **1** | the regression test that reproduces the bug |
 | a refactor — structure changes, behaviour does not | **0** | the existing tests pass UNCHANGED; if none pins the behaviour, 1 characterization test written BEFORE the move |
 | money, deletion, auth, tenant isolation, a trust boundary | **what the defense table needs** | each defense, plus its negative case |
 
-Format, one line per test: `- [ ] T-NN <test_name> — <expected behaviour> ·
-<unit|integration|e2e|regression> · <test path> [· AC-NN]`, plus `Run:` (ONE command that runs only
+Format, one line per test: `- [ ] T-NN <plain sentence> · <test_name> — <how it is
+mounted> · <unit|integration|e2e|regression> · <test path> [· AC-NN]`. The plain sentence comes
+first and a non-developer understands it: what the user sees or can do, or which bug does not come
+back — no code names, no `·` inside it. The Trello "Tests" checklist and the @qa's verdict show
+exactly that sentence. Good: ``T-04 «Back to the box» puts the scenes' text in the box and brings
+back «Camera» (the bug) · `back_to_the_box` — mounted, reel with a character…``. Bad:
+`T-04 back_to_the_box (the bug) — mounted, reel with a character…`. Plus `Run:` (ONE command that runs only
 these tests, in isolation, with the stack's runner from `squad.md`) and `Blocking:` (default "any
 T-NN red"). Names and locations, never test code: if you write the tests, the @developer and the
 @qa inherit your wrong assumptions together.
@@ -199,7 +204,11 @@ Before delivering, run this review over each ticket (the answers do NOT go in th
 6. With an approved mockup: does every screen-inventory row — added **and removed/moved** — have
    a ticket and an instrument (usually `screenshot`; a T-NN only where a click changes state)?
 The @qa checks the criteria on its own; when it finds an unprotected behaviour it names ONE test
-to add, and that goes through you — the budget stays yours.
+to add, and that goes through you — the budget stays yours. **Only you or the lead add a `T-NN`**
+(operator rule 2026-11-28): a regression the @qa asks for or a case the developer reports as
+`Missing test:` enters the contract as a new `T-NN` before anyone writes it, and rewriting an old
+test so it passes is a line too — `T-NN (rewrites <old test> — <why>)`. Anything else is out of
+contract and the @qa rejects it.
 
 In `Technical notes` goes: real files to touch · command from `squad.md §Verification` ·
 **QA evidence**: `QA: screenshots` (default) or `QA: video` — only if the lead asked for it

@@ -83,12 +83,14 @@ graph is a snapshot of the main repo: confirm in the real code before citing a l
    ticket. A check you want while coding (does this branch fire? what does this return?) is a
    scratch script outside the repository — the scratchpad or `/tmp` — and is never committed. If
    you find a real behaviour the contract missed (a branch that loses data or money when wrong),
-   add at most ONE test and report it as `Added: <name> — <why>`; anything else is a line in your
-   report for the @architect.
-   **Tests your change breaks.** Delete the ones the ticket lists under `Remove:`. A test that
-   fails only because it pinned the old implementation (a CSS class, the DOM shape, a source
-   string) is rewritten to assert the behaviour, or deleted if the behaviour is gone — say which
-   in your report. Never keep dead markup alive so an old test stays green.
+   do NOT write the test: report `Missing test: <plain sentence> — <why>` and the lead adds it to
+   the contract as a new `T-NN` before anyone writes it (operator rule 2026-11-28). A test outside
+   the contract is REJECTED by the @qa even when green.
+   **Tests your change breaks.** Delete the ones the ticket lists under `Remove:`. Rewriting an old
+   test so it passes counts as adding one: do it only when the contract says
+   `T-NN (rewrites <old test> — <why>)`. Any other old test your change breaks (it pinned a CSS
+   class, the DOM shape, a source string) → stop and report it as `Missing test:` for the lead.
+   Never keep dead markup alive so an old test stays green.
 2. **`ponytail`** — write **the minimum that works**; reuse what already exists before creating; no
    premature abstractions. Before closing, run the `/ponytail-review` eye over your diff. If the
    skill is not installed, follow its YAGNI ladder anyway.

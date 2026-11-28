@@ -38,7 +38,8 @@ The flow doc contains:
 
 The HTML uses dummy data and shows the connected screens, entry points and changed states.
 Keep it plain; no framework, backend or visual design service just for the wireframe. It is
-labeled as a prototype. A small copy/style change needs only the affected context in HTML.
+labeled as a prototype — the label exempts it from nothing (see «Design critique of every
+mockup»). A small copy/style change needs only the affected context in HTML.
 The lead opens it for the human before feature implementation, with the entry-point decisions.
 Record explicit approval and the artifact revision (hash of the flow doc + HTML) in BOARD;
 for multiple flows, record each revision. A link alone is not approval.
@@ -98,6 +99,18 @@ So, for every ticket with a `Mock:` line:
   saves a full QA round and the operator's trust.
 - **The QA judges the picture first, the list second.** Same two Reads; differences the inventory
   does not explain are `(beyond contract)` blocking findings.
+
+### Design critique of every mockup
+
+Operator rule 2026-11-28. A mockup is the screen the developer will copy, so its design defects
+become the product's. When `impeccable` is installed:
+- Every HTML screen mockup, written by the architect or the lead, runs
+  `/impeccable critique <mockup path>` before the review checkpoint (`/squad:run` step 1b).
+- P0 and P1 are fixed in the mockup before the human sees it; the checkpoint shows the score.
+- The mockup is code of the run, not a throwaway: BOARD and ticket carry
+  `Mock: <path> · author: <architect|lead> · run <RUN-…> · critique: <score>`.
+- The design hook's findings on that file are not silenced with "it's only a prototype". A
+  finding is silenced only as a false positive, with the measurement that shows it.
 
 ### Real state — mount the screen the way the operator opens it
 
